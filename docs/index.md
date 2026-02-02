@@ -1098,6 +1098,62 @@ ggplot(incorp_only, aes(x=A, y=copy_number)) +
 ```
 
 
+
+## Figure 1 alt
+
+
+```r
+custom_colors_class=c("Acidimicrobiia" ="#f21277",
+                      "Actinobacteria" ="#a02016",
+                      "Alphaproteobacteria" ="#ffb659",
+                      "Bacteroidia" = "#48591c",
+                      "Chloroflexia"='gray',
+                      "Deltaproteobacteria" ="#01a34a",
+                      "Gammaproteobacteria" ="#7bc6ff",
+                      "OM190" = 'gray',
+                      "Planctomycetacia" ="#00539e",
+                      "Rhodothermia"='gray',
+                      "Thermoleophilia" = 'gray',
+                      "vadinHA49" = "gray", 
+                      "Verrucomicrobiae" ="#6868f2")
+incorp_only$Class_ag=incorp_only$Class
+incorp_only$Class_ag=as.factor(incorp_only$Class_ag)
+levels(incorp_only$Class_ag)=c("Acidimicrobiia","Actinobacteria","Alphaproteobacteria","Bacteroidia","Other","Deltaproteobacteria","Gammaproteobacteria","Other","Planctomycetacia", "Other", "Other", "Other","Verrucomicrobiae")
+
+custom_colors_class=c("Acidimicrobiia" ="#f21277",
+                      "Actinobacteria" ="#a02016",
+                      "Alphaproteobacteria" ="#ffb659",
+                      "Bacteroidia" = "#48591c",
+                                            "Other" = 'gray',
+
+                      "Deltaproteobacteria" ="#01a34a",
+                      "Gammaproteobacteria" ="#7bc6ff",
+                      "Planctomycetacia" ="#00539e",
+                      "Verrucomicrobiae" ="#6868f2")
+
+desired_order=c("Single", "Multi")
+incorp_only$Substrate <- factor(incorp_only$Substrate, levels = desired_order)
+
+formula = incorp_only$copy_number ~ incorp_only$A * incorp_only$Culture * incorp_only$Substrate
+
+ggplot(incorp_only, aes(x=A, y=copy_number, color=Class_ag)) +
+  #geom_point(size=as.numeric(incorp_only$copy_number)*0.7, alpha=0.8) +
+  geom_point(size=3) +
+  geom_smooth(method = "lm", se = FALSE, col='black')  +
+  facet_wrap(Culture ~ Substrate) +
+  theme_bw() +
+  xlab("Excess Atomic Fraction") +
+  ylab("16S Gene Copy Number") + 
+  theme(axis.line = element_line(colour = "black"),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank()) +
+    scale_color_manual(values=custom_colors_class) 
+```
+
+![](/Users/oliviaahern/Documents/GitHub/Sip_CopyNumber/docs/index_files/figure-html/copy-2ag-1.png)<!-- -->
+
+
+
 ### stats generated from here
 
 ```r
@@ -1262,7 +1318,7 @@ adonis2(gp.dist ~ as.factor(sample_data(GP)$Culture) +as.factor(sample_data(GP)$
 ## adonis2(formula = gp.dist ~ as.factor(sample_data(GP)$Culture) + as.factor(sample_data(GP)$Substrate))
 ##                                      Df SumOfSqs      R2        F Pr(>F)    
 ## as.factor(sample_data(GP)$Culture)    1  1178.81 0.81320 216.9951  0.001 ***
-## as.factor(sample_data(GP)$Substrate)  3    26.33 0.01816   1.6157  0.176    
+## as.factor(sample_data(GP)$Substrate)  3    26.33 0.01816   1.6157  0.185    
 ## Residual                             45   244.46 0.16864                    
 ## Total                                49  1449.60 1.00000                    
 ## ---
@@ -1325,7 +1381,7 @@ adonis2(gp.dist ~ as.factor(sample_data(GP)$Culture) +as.factor(sample_data(GP)$
 ## adonis2(formula = gp.dist ~ as.factor(sample_data(GP)$Culture) + as.factor(sample_data(GP)$Treatment), by = "margin")
 ##                                      Df SumOfSqs      R2       F Pr(>F)    
 ## as.factor(sample_data(GP)$Culture)    1  1324.73 0.48942 152.408  0.001 ***
-## as.factor(sample_data(GP)$Treatment)  1    25.98 0.00960   2.989  0.072 .  
+## as.factor(sample_data(GP)$Treatment)  1    25.98 0.00960   2.989  0.075 .  
 ## Residual                             47   408.52 0.15093                   
 ## Total                                49  2706.75 1.00000                   
 ## ---

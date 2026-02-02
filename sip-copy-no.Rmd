@@ -745,6 +745,63 @@ ggplot(incorp_only, aes(x=A, y=copy_number)) +
 ```
 
 
+
+## Figure 1 alt
+
+```{r copy-2ag, message=FALSE, error=FALSE, warning=FALSE, dpi=300, fig.width=8, fig.height=5}
+
+
+
+custom_colors_class=c("Acidimicrobiia" ="#f21277",
+                      "Actinobacteria" ="#a02016",
+                      "Alphaproteobacteria" ="#ffb659",
+                      "Bacteroidia" = "#48591c",
+                      "Chloroflexia"='gray',
+                      "Deltaproteobacteria" ="#01a34a",
+                      "Gammaproteobacteria" ="#7bc6ff",
+                      "OM190" = 'gray',
+                      "Planctomycetacia" ="#00539e",
+                      "Rhodothermia"='gray',
+                      "Thermoleophilia" = 'gray',
+                      "vadinHA49" = "gray", 
+                      "Verrucomicrobiae" ="#6868f2")
+incorp_only$Class_ag=incorp_only$Class
+incorp_only$Class_ag=as.factor(incorp_only$Class_ag)
+levels(incorp_only$Class_ag)=c("Acidimicrobiia","Actinobacteria","Alphaproteobacteria","Bacteroidia","Other","Deltaproteobacteria","Gammaproteobacteria","Other","Planctomycetacia", "Other", "Other", "Other","Verrucomicrobiae")
+
+custom_colors_class=c("Acidimicrobiia" ="#f21277",
+                      "Actinobacteria" ="#a02016",
+                      "Alphaproteobacteria" ="#ffb659",
+                      "Bacteroidia" = "#48591c",
+                                            "Other" = 'gray',
+
+                      "Deltaproteobacteria" ="#01a34a",
+                      "Gammaproteobacteria" ="#7bc6ff",
+                      "Planctomycetacia" ="#00539e",
+                      "Verrucomicrobiae" ="#6868f2")
+
+desired_order=c("Single", "Multi")
+incorp_only$Substrate <- factor(incorp_only$Substrate, levels = desired_order)
+
+formula = incorp_only$copy_number ~ incorp_only$A * incorp_only$Culture * incorp_only$Substrate
+
+ggplot(incorp_only, aes(x=A, y=copy_number, color=Class_ag)) +
+  #geom_point(size=as.numeric(incorp_only$copy_number)*0.7, alpha=0.8) +
+  geom_point(size=3) +
+  geom_smooth(method = "lm", se = FALSE, col='black')  +
+  facet_wrap(Culture ~ Substrate) +
+  theme_bw() +
+  xlab("Excess Atomic Fraction") +
+  ylab("16S Gene Copy Number") + 
+  theme(axis.line = element_line(colour = "black"),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank()) +
+    scale_color_manual(values=custom_colors_class) 
+
+```
+
+
+
 ### stats generated from here
 ```{r copy-3, message=FALSE, error=FALSE, warning=FALSE, dpi=300, fig.width=8, fig.height=5}
 

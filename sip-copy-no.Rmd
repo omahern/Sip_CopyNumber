@@ -36,6 +36,7 @@ library(viridis)
 library(treeio)
 library(dplyr)
 library(microbiome)
+library(treeio)
 ```
 
 
@@ -303,7 +304,7 @@ physeq_rep3_t = OTU_qPCR_trans(phyo_frac, map)
 
 ```{r, message=FALSE, error=FALSE,warning=FALSE}
 batch_glu=
-  subset_samples(physeq_rep3_t, Culture=="Batch" & Treatment=="Glucose")
+  subset_samples(physeq_rep3_t, Culture=="Batch" & Treatment=="Single")
 
 otu=otu_table(batch_glu)
 deco=decostand(otu, 'pa')
@@ -356,7 +357,7 @@ batch_glui=
 
 ```{r, message=FALSE, error=FALSE,warning=FALSE}
 batch_carb=
-  subset_samples(physeq_rep3_t, Culture=="Batch" & Treatment=="Five-Carbon")
+  subset_samples(physeq_rep3_t, Culture=="Batch" & Treatment=="Multi")
 
 otu=otu_table(batch_carb)
 deco=decostand(otu, 'pa')
@@ -407,7 +408,7 @@ batch_carbi=
 
 ```{r, message=FALSE, error=FALSE,warning=FALSE}
 chemo=
-  subset_samples(physeq_rep3_t, Culture=="Chemostat" & Treatment=="Five-Carbon")
+  subset_samples(physeq_rep3_t, Culture=="Chemostat" & Treatment=="Multi")
 
 otu=otu_table(chemo)
 deco=decostand(otu, 'pa')
@@ -826,6 +827,275 @@ adonis2(gp.dist ~ as.factor(sample_data(GP)$Culture) +as.factor(sample_data(GP)$
 
 ```
 
+# shared asvs among treatments 
+
+
+## ASVs present in all three treatmnents
+
+```{r}
+summary(qsip_data$OTU)
+# two ASVs that were in all treatments positively 
+# ffd660f96ba6668b2d8d86fc4e150862
+# 84ea3564fd34c5377c4305b340f0c16f
+
+# af27577de5edb10c09f7fc19b9ca45ca true for batch but false for chemostat
+# false for batch single e416d0916760d2fc17b616e2ac3ad855
+```
+
+### ASV 1
+```{r asv1,message=FALSE, error=FALSE, warning=FALSE, dpi=300, fig.width=7, fig.height=4 }
+
+par(mfrow=c(1,3))
+asv2=subset_taxa(physeq_rep3_t, Strain=="ffd660f96ba6668b2d8d86fc4e150862")
+tax_table(asv2)
+asv2_batch_single = subset_samples(asv2, Culture == "Batch" & Treatment == "Single")
+
+plot( otu_table( subset_samples(asv2_batch_single, Isotope =="C12"))/max(otu_table( subset_samples(asv2_batch_single, Isotope =="C12"))),
+      sample_data(subset_samples(asv2_batch_single, Isotope =="C12"))$diff_C12_peak,
+     type="o", ylim=c(-0.05,0.051), col='gray', pch=21, bg='gray',
+     ylab="Difference from C12 qPCR Peak (g/mL)", xlab="Ratio of Maximum Quantity of ASV",
+     main="Batch Single")
+lines( otu_table( subset_samples(asv2_batch_single, Isotope =="C13"))/max(otu_table( subset_samples(asv2_batch_single, Isotope =="C13"))),
+       sample_data(subset_samples(asv2_batch_single, Isotope =="C13"))$diff_C12_peak,
+     type="o", col='black', pch=21, bg='black')
+text(0.6, -0.04, "EAF = 0.38")
+
+
+asv2_batch_five = subset_samples(asv2, Culture == "Batch" & Treatment == "Multi")
+
+plot( otu_table( subset_samples(asv2_batch_five, Isotope =="C12"))/max(otu_table( subset_samples(asv2_batch_five, Isotope =="C12"))),
+      sample_data(subset_samples(asv2_batch_five, Isotope =="C12"))$diff_C12_peak,
+     type="o", ylim=c(-0.05,0.051), col='gray', pch=21, bg='gray',
+     ylab="Difference from C12 qPCR Peak (g/mL)", xlab="Ratio of Maximum Quantity of ASV",
+     main="Batch Multi")
+lines( otu_table( subset_samples(asv2_batch_five, Isotope =="C13"))/max(otu_table( subset_samples(asv2_batch_five, Isotope =="C13"))),
+       sample_data(subset_samples(asv2_batch_five, Isotope =="C13"))$diff_C12_peak,
+     type="o", col='black', pch=21, bg='black')
+text(0.6, -0.04, "EAF = 0.14")
+
+
+asv2_chemo = subset_samples(asv2, Culture == "Chemostat")
+
+plot( otu_table( subset_samples(asv2_chemo, Isotope =="C12"))/max(otu_table( subset_samples(asv2_chemo, Isotope =="C12"))),
+      sample_data(subset_samples(asv2_chemo, Isotope =="C12"))$diff_C12_peak,
+     type="o", ylim=c(-0.05,0.051), col='gray', pch=21, bg='gray',
+     ylab="Difference from C12 qPCR Peak(g/mL)", xlab="Ratio of Maximum Quantity of ASV", 
+     main="Chemostat Multi")
+lines(otu_table( subset_samples(asv2_chemo, Isotope =="C13"))/max(otu_table( subset_samples(asv2_chemo, Isotope =="C13"))),
+      sample_data(subset_samples(asv2_chemo, Isotope =="C13"))$diff_C12_peak, 
+     type="o", col='black', pch=21, bg='black')
+text(0.6, -0.04, "EAF = 0.32")
+
+```
+
+
+### ASV 2
+```{r asv2, message=FALSE, error=FALSE, warning=FALSE, dpi=300, fig.width=7, fig.height=4}
+
+
+par(mfrow=c(1,3))
+asv2=subset_taxa(physeq_rep3_t, Strain=="84ea3564fd34c5377c4305b340f0c16f")
+tax_table(asv2)
+asv2_batch_single = subset_samples(asv2, Culture == "Batch" & Treatment == "Single")
+
+plot( otu_table( subset_samples(asv2_batch_single, Isotope =="C12"))/max(otu_table( subset_samples(asv2_batch_single, Isotope =="C12"))),
+      sample_data(subset_samples(asv2_batch_single, Isotope =="C12"))$diff_C12_peak,
+     type="o", ylim=c(-0.05,0.051), col='gray', pch=21, bg='gray',
+     ylab="Difference from C12 qPCR Peak (g/mL)", xlab="Ratio of Maximum Quantity of ASV",
+     main="Batch Single")
+lines( otu_table( subset_samples(asv2_batch_single, Isotope =="C13"))/max(otu_table( subset_samples(asv2_batch_single, Isotope =="C13"))),
+       sample_data(subset_samples(asv2_batch_single, Isotope =="C13"))$diff_C12_peak,
+     type="o", col='black', pch=21, bg='black')
+text(0.6, -0.04, "EAF = 0.13")
+
+
+asv2_batch_five = subset_samples(asv2, Culture == "Batch" & Treatment == "Multi")
+
+plot( otu_table( subset_samples(asv2_batch_five, Isotope =="C12"))/max(otu_table( subset_samples(asv2_batch_five, Isotope =="C12"))),
+      sample_data(subset_samples(asv2_batch_five, Isotope =="C12"))$diff_C12_peak,
+     type="o", ylim=c(-0.05,0.051), col='gray', pch=21, bg='gray',
+     ylab="Difference from C12 qPCR Peak (g/mL)", xlab="Ratio of Maximum Quantity of ASV",
+     main="Batch Multi")
+lines( otu_table( subset_samples(asv2_batch_five, Isotope =="C13"))/max(otu_table( subset_samples(asv2_batch_five, Isotope =="C13"))),
+       sample_data(subset_samples(asv2_batch_five, Isotope =="C13"))$diff_C12_peak,
+     type="o", col='black', pch=21, bg='black')
+text(0.6, -0.04, "EAF = 0.15")
+
+
+asv2_chemo = subset_samples(asv2, Culture == "Chemostat")
+
+plot( otu_table( subset_samples(asv2_chemo, Isotope =="C12"))/max(otu_table( subset_samples(asv2_chemo, Isotope =="C12"))),
+      sample_data(subset_samples(asv2_chemo, Isotope =="C12"))$diff_C12_peak,
+     type="o", ylim=c(-0.05,0.051), col='gray', pch=21, bg='gray',
+     ylab="Difference from C12 qPCR Peak (g/mL)", xlab="Ratio of Maximum Quantity of ASV", 
+     main="Chemostat Multi")
+lines(otu_table( subset_samples(asv2_chemo, Isotope =="C13"))/max(otu_table( subset_samples(asv2_chemo, Isotope =="C13"))),
+      sample_data(subset_samples(asv2_chemo, Isotope =="C13"))$diff_C12_peak, 
+     type="o", col='black', pch=21, bg='black')
+text(0.6, -0.04, "EAF = 0.69")
+
+```
+
+### ASV 3 
+```{r asv3, message=FALSE, error=FALSE, warning=FALSE, dpi=300, fig.width=7, fig.height=4}
+
+
+par(mfrow=c(1,3))
+asv2=subset_taxa(physeq_rep3_t, Strain=="af27577de5edb10c09f7fc19b9ca45ca")
+tax_table(asv2)
+asv2_batch_single = subset_samples(asv2, Culture == "Batch" & Treatment == "Single")
+
+plot( otu_table( subset_samples(asv2_batch_single, Isotope =="C12"))/max(otu_table( subset_samples(asv2_batch_single, Isotope =="C12"))),
+      sample_data(subset_samples(asv2_batch_single, Isotope =="C12"))$diff_C12_peak,
+     type="o", ylim=c(-0.05,0.051), col='gray', pch=21, bg='gray',
+     ylab="Difference from C12 qPCR Peak (g/mL)", xlab="Ratio of Maximum Quantity of ASV",
+     main="Batch Single")
+lines( otu_table( subset_samples(asv2_batch_single, Isotope =="C13"))/max(otu_table( subset_samples(asv2_batch_single, Isotope =="C13"))),
+       sample_data(subset_samples(asv2_batch_single, Isotope =="C13"))$diff_C12_peak,
+     type="o", col='black', pch=21, bg='black')
+text(0.6, -0.04, "EAF = 0.56")
+
+
+asv2_batch_five = subset_samples(asv2, Culture == "Batch" & Treatment == "Multi")
+
+plot( otu_table( subset_samples(asv2_batch_five, Isotope =="C12"))/max(otu_table( subset_samples(asv2_batch_five, Isotope =="C12"))),
+      sample_data(subset_samples(asv2_batch_five, Isotope =="C12"))$diff_C12_peak,
+     type="o", ylim=c(-0.05,0.051), col='gray', pch=21, bg='gray',
+     ylab="Difference from C12 qPCR Peak (g/mL)", xlab="Ratio of Maximum Quantity of ASV",
+     main="Batch Multi")
+lines( otu_table( subset_samples(asv2_batch_five, Isotope =="C13"))/max(otu_table( subset_samples(asv2_batch_five, Isotope =="C13"))),
+       sample_data(subset_samples(asv2_batch_five, Isotope =="C13"))$diff_C12_peak,
+     type="o", col='black', pch=21, bg='black')
+text(0.6, -0.04, "EAF = 0.31")
+
+
+asv2_chemo = subset_samples(asv2, Culture == "Chemostat")
+
+plot( otu_table( subset_samples(asv2_chemo, Isotope =="C12"))/max(otu_table( subset_samples(asv2_chemo, Isotope =="C12"))),
+      sample_data(subset_samples(asv2_chemo, Isotope =="C12"))$diff_C12_peak,
+     type="o", ylim=c(-0.05,0.051), col='gray', pch=21, bg='gray',
+     ylab="Difference from C12 qPCR Peak (g/mL)", xlab="Ratio of Maximum Quantity of ASV", 
+     main="Chemostat Multi")
+lines(otu_table( subset_samples(asv2_chemo, Isotope =="C13"))/max(otu_table( subset_samples(asv2_chemo, Isotope =="C13"))),
+      sample_data(subset_samples(asv2_chemo, Isotope =="C13"))$diff_C12_peak, 
+     type="o", col='black', pch=21, bg='black')
+text(0.6, -0.04, "EAF = NA")
+
+```
 
 
 
+### ASV 4
+```{r asv4, message=FALSE, error=FALSE, warning=FALSE, dpi=300, fig.width=7, fig.height=4}
+
+
+par(mfrow=c(1,3))
+asv2=subset_taxa(physeq_rep3_t, Strain=="e416d0916760d2fc17b616e2ac3ad855")
+tax_table(asv2)
+asv2_batch_single = subset_samples(asv2, Culture == "Batch" & Treatment == "Single")
+
+plot( otu_table( subset_samples(asv2_batch_single, Isotope =="C12"))/max(otu_table( subset_samples(asv2_batch_single, Isotope =="C12"))),
+      sample_data(subset_samples(asv2_batch_single, Isotope =="C12"))$diff_C12_peak,
+     type="o", ylim=c(-0.05,0.051), col='gray', pch=21, bg='gray',
+     ylab="Difference from C12 qPCR Peak (g/mL)", xlab="Ratio of Maximum Quantity of ASV",
+     main="Batch Single")
+lines( otu_table( subset_samples(asv2_batch_single, Isotope =="C13"))/max(otu_table( subset_samples(asv2_batch_single, Isotope =="C13"))),
+       sample_data(subset_samples(asv2_batch_single, Isotope =="C13"))$diff_C12_peak,
+     type="o", col='black', pch=21, bg='black')
+text(0.6, -0.04, "EAF = NA")
+
+
+asv2_batch_five = subset_samples(asv2, Culture == "Batch" & Treatment == "Multi")
+
+plot( otu_table( subset_samples(asv2_batch_five, Isotope =="C12"))/max(otu_table( subset_samples(asv2_batch_five, Isotope =="C12"))),
+      sample_data(subset_samples(asv2_batch_five, Isotope =="C12"))$diff_C12_peak,
+     type="o", ylim=c(-0.05,0.051), col='gray', pch=21, bg='gray',
+     ylab="Difference from C12 qPCR Peak (g/mL)", xlab="Ratio of Maximum Quantity of ASV",
+     main="Batch Multi")
+lines( otu_table( subset_samples(asv2_batch_five, Isotope =="C13"))/max(otu_table( subset_samples(asv2_batch_five, Isotope =="C13"))),
+       sample_data(subset_samples(asv2_batch_five, Isotope =="C13"))$diff_C12_peak,
+     type="o", col='black', pch=21, bg='black')
+text(0.6, -0.04, "EAF = 0.22")
+
+
+asv2_chemo = subset_samples(asv2, Culture == "Chemostat")
+
+plot( otu_table( subset_samples(asv2_chemo, Isotope =="C12"))/max(otu_table( subset_samples(asv2_chemo, Isotope =="C12"))),
+      sample_data(subset_samples(asv2_chemo, Isotope =="C12"))$diff_C12_peak,
+     type="o", ylim=c(-0.05,0.051), col='gray', pch=21, bg='gray',
+     ylab="Difference from C12 qPCR Peak (g/mL)", xlab="Ratio of Maximum Quantity of ASV", 
+     main="Chemostat Multi")
+lines(otu_table( subset_samples(asv2_chemo, Isotope =="C13"))/max(otu_table( subset_samples(asv2_chemo, Isotope =="C13"))),
+      sample_data(subset_samples(asv2_chemo, Isotope =="C13"))$diff_C12_peak, 
+     type="o", col='black', pch=21, bg='black')
+text(0.6, -0.04, "EAF = 0.11")
+
+```
+
+
+## ASVs present in batch both multi and single 
+
+```{r batch-a, message=FALSE, error=FALSE, warning=FALSE, dpi=300, fig.width=7, fig.height=4}
+batch=subset(qsip_data, Culture=="Batch")
+clam=(summary(batch$OTU))
+clam=data.frame(clam)
+clam2=names(subset(clam, clam==2))
+length(clam2)
+# 63 ASVs in batch both single and multi 
+
+batch=subset(incorp_only, Culture=="Batch")
+clam=(summary(batch$OTU))
+clam=data.frame(clam)
+clam2=names(subset(clam, clam==2))
+length(clam2)
+# 57 ASVs that are batch both single and multi and incorporators 
+batch_incorp=subset(batch, OTU %in% clam2)
+batch_incorp=data.frame(batch_incorp)
+
+summary(as.factor(batch_incorp$Class))
+summary(as.factor(batch_incorp$Family))
+
+```
+
+
+```{r batch-b, message=FALSE, error=FALSE, warning=FALSE, dpi=300, fig.width=5, fig.height=5}
+
+multi=subset(batch_incorp, Substrate=="Multi")
+single=subset(batch_incorp, Substrate=="Single")
+
+plot(multi$A, single$A, xlab= "EAF Batch Multi Substrate", ylab ="EAF Batch Single Substrate", pch=21, ylim=c(0,1), 
+     xlim=c(0,1), bg='gray',cex=(multi$copy_number*0.7),alpha = 0.5)
+ll=lm(single$A~multi$A)
+summary(ll)
+abline(ll)
+text(0.8, 0.4, "R2 = 0.30 \n F = 25.38 \n p = 5.4 e-6")
+abline(a=0,b=1,lty=2)
+
+```
+
+
+```{r batch-c, message=FALSE, error=FALSE, warning=FALSE, dpi=300, fig.width=4, fig.height=12}
+
+both=cbind(single$A, multi$A)
+colnames(both)=c("Single","Multi")
+row.names(both)=multi$OTU
+
+otus=multi$OTU
+# subset_batch=subset_taxa(phyo_frac, Strain %in% otus)
+
+# subset_batch_tree=phy_tree(subset_batch)
+subset_batch_tree=readRDS('datafiles/subset_batch_tree')
+tree2<-phylogram::as.dendrogram(subset_batch_tree)
+xxx=RColorBrewer::brewer.pal(9,"Reds")
+gplots::heatmap.2(both, Rowv=tree2,
+                  dendrogram='row', trace='none',
+                  scale = 'none',
+                  col=xxx, sepcolor = 'gray',
+                  sepwidth = c(0.005,0.05),
+                  rowsep = c(0:57),
+                  cexRow = 0.5,
+                  cexCol = 0.8,
+                  colsep = c(0,1,2),
+                  margins=c(5,10))
+
+```

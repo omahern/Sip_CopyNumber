@@ -1021,11 +1021,39 @@ custom_colors_class=c("Actinobacteria"="#ff6b92",
   "vadinHA49" = "#e747a0",
   "Verrucomicrobiae" = "#ff6eb1")
 
+custom_colors_class=c("Acidimicrobiia" ="#f21277",
+                      "Actinobacteria" ="#a02016",
+                      "Alphaproteobacteria" ="#ffb659",
+                      "Bacteroidia" = "#48591c",
+                      "Chloroflexia"='gray',
+                      "Deltaproteobacteria" ="#01a34a",
+                      "Gammaproteobacteria" ="#7bc6ff",
+                      "OM190" = 'gray',
+                      "Planctomycetacia" ="#00539e",
+                      "Rhodothermia"='gray',
+                      "Thermoleophilia" = 'gray',
+                      "vadinHA49" = "gray", 
+                      "Verrucomicrobiae" ="#6868f2")
+incorp_only$Class_ag=incorp_only$Class
+incorp_only$Class_ag=as.factor(incorp_only$Class_ag)
+levels(incorp_only$Class_ag)=c("Acidimicrobiia","Actinobacteria","Alphaproteobacteria","Bacteroidia","Other","Deltaproteobacteria","Gammaproteobacteria","Other","Planctomycetacia", "Other", "Other", "Other","Verrucomicrobiae")
+
+custom_colors_class=c("Acidimicrobiia" ="#f21277",
+                      "Actinobacteria" ="#a02016",
+                      "Alphaproteobacteria" ="#ffb659",
+                      "Bacteroidia" = "#48591c",
+                                            "Other" = 'gray',
+
+                      "Deltaproteobacteria" ="#01a34a",
+                      "Gammaproteobacteria" ="#7bc6ff",
+                      "Planctomycetacia" ="#00539e",
+                      "Verrucomicrobiae" ="#6868f2")
+
 desired_order=c("Single", "Multi")
 incorp_only$Substrate <- factor(incorp_only$Substrate, levels = desired_order)
 
 
-ggplot(incorp_only, aes(x=A, y=Wlight, fill=Class, color=Class)) + 
+ggplot(incorp_only, aes(x=A, y=Wlight, fill=Class_ag, color=Class_ag)) + 
    geom_point(size=as.numeric(incorp_only$copy_number)) +
   #geom_point(size=3) +
   facet_wrap(Culture ~ Substrate) +
@@ -1234,7 +1262,7 @@ adonis2(gp.dist ~ as.factor(sample_data(GP)$Culture) +as.factor(sample_data(GP)$
 ## adonis2(formula = gp.dist ~ as.factor(sample_data(GP)$Culture) + as.factor(sample_data(GP)$Substrate))
 ##                                      Df SumOfSqs      R2        F Pr(>F)    
 ## as.factor(sample_data(GP)$Culture)    1  1178.81 0.81320 216.9951  0.001 ***
-## as.factor(sample_data(GP)$Substrate)  3    26.33 0.01816   1.6157  0.164    
+## as.factor(sample_data(GP)$Substrate)  3    26.33 0.01816   1.6157  0.176    
 ## Residual                             45   244.46 0.16864                    
 ## Total                                49  1449.60 1.00000                    
 ## ---
@@ -1297,7 +1325,7 @@ adonis2(gp.dist ~ as.factor(sample_data(GP)$Culture) +as.factor(sample_data(GP)$
 ## adonis2(formula = gp.dist ~ as.factor(sample_data(GP)$Culture) + as.factor(sample_data(GP)$Treatment), by = "margin")
 ##                                      Df SumOfSqs      R2       F Pr(>F)    
 ## as.factor(sample_data(GP)$Culture)    1  1324.73 0.48942 152.408  0.001 ***
-## as.factor(sample_data(GP)$Treatment)  1    25.98 0.00960   2.989  0.071 .  
+## as.factor(sample_data(GP)$Treatment)  1    25.98 0.00960   2.989  0.072 .  
 ## Residual                             47   408.52 0.15093                   
 ## Total                                49  2706.75 1.00000                   
 ## ---
@@ -1309,115 +1337,11 @@ adonis2(gp.dist ~ as.factor(sample_data(GP)$Culture) +as.factor(sample_data(GP)$
 
 ## ASVs present in all three treatmnents
 
+I am not keeping this in because we used different CsTFA gradients for the batch and chemostat
+
 
 ```r
-summary(qsip_data$OTU)
-```
-
-```
-## af27577de5edb10c09f7fc19b9ca45ca ffd660f96ba6668b2d8d86fc4e150862 
-##                                3                                3 
-## 84ea3564fd34c5377c4305b340f0c16f e416d0916760d2fc17b616e2ac3ad855 
-##                                3                                3 
-## eb2625c1474f98f554b002fcd5d1088e efbe1f58b1e2984ddc53a64f047d94ff 
-##                                2                                2 
-## 68262884f1021c896f8e1bf7348d773c 6e6f306a337ba255a7f4a7f8469ff691 
-##                                2                                2 
-## 76a2e443105acc53d3461f176f38148c 9255e939f667b42a03cb99246b86cb32 
-##                                2                                2 
-## d1e7069c930bb4790713681f06f84cf0 aed191bac0b1c3264208a084af848bed 
-##                                2                                2 
-## e4278f7eb9e1d1595866d1c4440c78c9 7beab4f249af89a8aab102a03113ba62 
-##                                2                                2 
-## c52287a7efd223c578b51937b849bf91 9af3467db68cf6063627304cecd46a65 
-##                                2                                2 
-## fb800d4d7cd0a8e0da07b414fcf21b8c 710dab4db94586d934436dc307f766c9 
-##                                2                                2 
-## 2c070f4880cc78c48ec292dd9c89b597 c56ae4705fd5cf31ed0b25fa86e22ed6 
-##                                2                                2 
-## 8b2494a11c2f75ef0302082e2b542682 be9d6317e49313c0a8885815491ce6f0 
-##                                2                                2 
-## 9c886d46813a724862c055b0ed46e86d 55ce73379b753a6d229a4febc0b1362d 
-##                                2                                2 
-## 4964f339e90a20437a19d7ec3bcd8a1a 4d65f65496c3d0238ebf74738245e526 
-##                                2                                2 
-## 0e4971b9fdfe3044222a19f5b7f167dc 0b06017e8169c7ce93b22574992470dc 
-##                                2                                2 
-## 211b7bfb480d7e0ba8224a99279d1055 bd217e3552c0912e166951d39a120601 
-##                                2                                2 
-## dc3835d12dc9edc210bddff9c66bf356 cfb98993000a7864ecd250723d57b8db 
-##                                2                                2 
-## d4cc0a095dd016823ef8c5ad567c91fd 6b94959874b693c3304e68c57cefd287 
-##                                2                                2 
-## e6c8443214bca5d5809bbb0c5644af52 6267512d7ea98a0da430e5a6f96698e6 
-##                                2                                2 
-## 2b4e6ccd11a78681bceaffed2053907f 8735f92a7f18db944bc862777fbd3222 
-##                                2                                2 
-## 788f25619c77abb69cf199dd19233eb4 8b08139d6eb5d7a849dff1bd579727d7 
-##                                2                                2 
-## c4e16e2ca85ff9eb360fd895f75227ca d5b23bb0b75b67df5ecd5ad44760b312 
-##                                2                                2 
-## c530fa2c576c67ce632ce34474b8ea71 d56e5ac31cfe9e5dea7d4a63d13f1232 
-##                                2                                2 
-## 92c0c75c6858840cbc21744f047e2a02 177d2176a3368f43cc132f9e34a9405c 
-##                                2                                2 
-## 755afc7ffddcfd5e093ea2222f4affd6 64edc344889f4279a1292afbe81dc043 
-##                                2                                2 
-## 7580ff42ec296410fd9b751933c26164 7c338eeece15edbfcf8ed52c568f6fc2 
-##                                2                                2 
-## 4744c03db226d903293f9342f292e94d 9cfa52be027c8fa57d197b21dd7a958c 
-##                                2                                2 
-## bca82bc447bbd86d4a6a93e596e3aabd afc0eeec83a181be740331928d883362 
-##                                2                                2 
-## 1bccea8882fb44e316fa3626a2062514 11b50e80047289f589868d85531954f4 
-##                                2                                2 
-## e747694a818ae82e58f977992c196fd0 9176a4011d0b5a7a3fe654f25319091e 
-##                                2                                2 
-## 3c8a9630951999d2b809868618b05848 3bb0bf5132b0f988573de9bd6059b22c 
-##                                2                                2 
-## b6a0ad25677cccdc5a6ada23f7e276b6 9a64f65cc4a51bc87a27dbff7ecefdd6 
-##                                2                                2 
-## 282d970c7e74112691085e63921dbcfd 7dd273cfe05a5c5e224f299f760201cf 
-##                                2                                2 
-## e177a451db2600efdeb8bde47ef88671 fd3acdbb6eaf9e3669c9f303a6fa0b28 
-##                                1                                1 
-## 448ee48054e6edfd36e703a6baecc8a8 a7b57a3495513cb6d0fae02b7d400ac7 
-##                                1                                1 
-## 20ada5c0fa2722151f9039d1896592e8 5914e4ffa20a5fa0b95bf68e5c9777b6 
-##                                1                                1 
-## 6a679587c40215f64acb6b0231b57581 29731c1ae123c2faa2b4184d96385388 
-##                                1                                1 
-## 4800a9c596272fb238a316d893b0871e fecd0294f7ecdb7bc5c54d01e9f541f0 
-##                                1                                1 
-## 2da31e61296f678bb466e1ae0593e33d 123fa4546d88beaa1017c112c3c600cc 
-##                                1                                1 
-## a51911fb468aee7787ca8edf2ad66641 6070669b932f1826dc8b8e61495fd27c 
-##                                1                                1 
-## fb2dab56bf8047ade734c2fceccb49e4 a4e7c4029a5970db9ae5de9cb1b8ced9 
-##                                1                                1 
-## c36646fabf5978777e0e7b08044e9568 304d1a8fe851969c2eb82c85f9f88c11 
-##                                1                                1 
-## 3fc227a79c6a108319409a05f87103f3 37762c5e9b1d5a5233d6caeef3660d6a 
-##                                1                                1 
-## 9100c673ddb0128f63023d0c6d423792 5d2c9965718d1254c00a642f570eb604 
-##                                1                                1 
-## 70f086828189cd2b21299d41e077a74a 9ac9a274b64edbcb2b5e1e1c81743b51 
-##                                1                                1 
-## 27c7baf02d6ba15f77c56b6acb9434c0 50db42495de3aa6b40560c8c73e032d5 
-##                                1                                1 
-## c9eeb9179e405b1fd7846a8aefb864d1 be45460bb19ae26f588454f3dd7388ec 
-##                                1                                1 
-## 06eb32e29df10778b60c49356ef3b5e0 b7a2bc450146ff938fb3354ecc36444a 
-##                                1                                1 
-## d5eb9156cd0592eb1cd773db88550ef3 2aee17e668dd944e7792d625ec479fcf 
-##                                1                                1 
-## d52d14abfccb539e79068c89454cbbbd 64223c9ef560d611f5b9e7e5e78eb7ff 
-##                                1                                1 
-## e50cc2a3da1dd7fd34ca4daba09a32ad                          (Other) 
-##                                1                               71
-```
-
-```r
+# summary(qsip_data$OTU)
 # two ASVs that were in all treatments positively 
 # ffd660f96ba6668b2d8d86fc4e150862
 # 84ea3564fd34c5377c4305b340f0c16f
@@ -1682,115 +1606,8 @@ text(0.6, -0.04, "EAF = 0.11")
 ```r
 batch=subset(qsip_data, Culture=="Batch")
 clam=(summary(batch$OTU))
-data.frame(clam)
-```
-
-```
-##                                  clam
-## eb2625c1474f98f554b002fcd5d1088e    2
-## 68262884f1021c896f8e1bf7348d773c    2
-## 6e6f306a337ba255a7f4a7f8469ff691    2
-## 76a2e443105acc53d3461f176f38148c    2
-## 9255e939f667b42a03cb99246b86cb32    2
-## d1e7069c930bb4790713681f06f84cf0    2
-## aed191bac0b1c3264208a084af848bed    2
-## e4278f7eb9e1d1595866d1c4440c78c9    2
-## 7beab4f249af89a8aab102a03113ba62    2
-## c52287a7efd223c578b51937b849bf91    2
-## 9af3467db68cf6063627304cecd46a65    2
-## fb800d4d7cd0a8e0da07b414fcf21b8c    2
-## 710dab4db94586d934436dc307f766c9    2
-## 2c070f4880cc78c48ec292dd9c89b597    2
-## c56ae4705fd5cf31ed0b25fa86e22ed6    2
-## 8b2494a11c2f75ef0302082e2b542682    2
-## be9d6317e49313c0a8885815491ce6f0    2
-## af27577de5edb10c09f7fc19b9ca45ca    2
-## 9c886d46813a724862c055b0ed46e86d    2
-## 55ce73379b753a6d229a4febc0b1362d    2
-## 4964f339e90a20437a19d7ec3bcd8a1a    2
-## 4d65f65496c3d0238ebf74738245e526    2
-## 0e4971b9fdfe3044222a19f5b7f167dc    2
-## 0b06017e8169c7ce93b22574992470dc    2
-## 211b7bfb480d7e0ba8224a99279d1055    2
-## bd217e3552c0912e166951d39a120601    2
-## dc3835d12dc9edc210bddff9c66bf356    2
-## cfb98993000a7864ecd250723d57b8db    2
-## d4cc0a095dd016823ef8c5ad567c91fd    2
-## ffd660f96ba6668b2d8d86fc4e150862    2
-## 6b94959874b693c3304e68c57cefd287    2
-## e6c8443214bca5d5809bbb0c5644af52    2
-## 6267512d7ea98a0da430e5a6f96698e6    2
-## 2b4e6ccd11a78681bceaffed2053907f    2
-## 8735f92a7f18db944bc862777fbd3222    2
-## 788f25619c77abb69cf199dd19233eb4    2
-## 8b08139d6eb5d7a849dff1bd579727d7    2
-## c4e16e2ca85ff9eb360fd895f75227ca    2
-## d5b23bb0b75b67df5ecd5ad44760b312    2
-## c530fa2c576c67ce632ce34474b8ea71    2
-## d56e5ac31cfe9e5dea7d4a63d13f1232    2
-## 92c0c75c6858840cbc21744f047e2a02    2
-## 177d2176a3368f43cc132f9e34a9405c    2
-## 755afc7ffddcfd5e093ea2222f4affd6    2
-## 64edc344889f4279a1292afbe81dc043    2
-## 7580ff42ec296410fd9b751933c26164    2
-## 7c338eeece15edbfcf8ed52c568f6fc2    2
-## 4744c03db226d903293f9342f292e94d    2
-## 9cfa52be027c8fa57d197b21dd7a958c    2
-## bca82bc447bbd86d4a6a93e596e3aabd    2
-## afc0eeec83a181be740331928d883362    2
-## 1bccea8882fb44e316fa3626a2062514    2
-## 84ea3564fd34c5377c4305b340f0c16f    2
-## 11b50e80047289f589868d85531954f4    2
-## e747694a818ae82e58f977992c196fd0    2
-## 9176a4011d0b5a7a3fe654f25319091e    2
-## 3c8a9630951999d2b809868618b05848    2
-## 3bb0bf5132b0f988573de9bd6059b22c    2
-## b6a0ad25677cccdc5a6ada23f7e276b6    2
-## 9a64f65cc4a51bc87a27dbff7ecefdd6    2
-## 282d970c7e74112691085e63921dbcfd    2
-## e416d0916760d2fc17b616e2ac3ad855    2
-## 7dd273cfe05a5c5e224f299f760201cf    2
-## e177a451db2600efdeb8bde47ef88671    1
-## fd3acdbb6eaf9e3669c9f303a6fa0b28    1
-## 448ee48054e6edfd36e703a6baecc8a8    1
-## efbe1f58b1e2984ddc53a64f047d94ff    1
-## a7b57a3495513cb6d0fae02b7d400ac7    1
-## 20ada5c0fa2722151f9039d1896592e8    1
-## 5914e4ffa20a5fa0b95bf68e5c9777b6    1
-## 6a679587c40215f64acb6b0231b57581    1
-## 29731c1ae123c2faa2b4184d96385388    1
-## 4800a9c596272fb238a316d893b0871e    1
-## fecd0294f7ecdb7bc5c54d01e9f541f0    1
-## 2da31e61296f678bb466e1ae0593e33d    1
-## 123fa4546d88beaa1017c112c3c600cc    1
-## a51911fb468aee7787ca8edf2ad66641    1
-## 6070669b932f1826dc8b8e61495fd27c    1
-## fb2dab56bf8047ade734c2fceccb49e4    1
-## a4e7c4029a5970db9ae5de9cb1b8ced9    1
-## c36646fabf5978777e0e7b08044e9568    1
-## 304d1a8fe851969c2eb82c85f9f88c11    1
-## 3fc227a79c6a108319409a05f87103f3    1
-## 37762c5e9b1d5a5233d6caeef3660d6a    1
-## 9100c673ddb0128f63023d0c6d423792    1
-## 5d2c9965718d1254c00a642f570eb604    1
-## 70f086828189cd2b21299d41e077a74a    1
-## 9ac9a274b64edbcb2b5e1e1c81743b51    1
-## 27c7baf02d6ba15f77c56b6acb9434c0    1
-## 50db42495de3aa6b40560c8c73e032d5    1
-## c9eeb9179e405b1fd7846a8aefb864d1    1
-## be45460bb19ae26f588454f3dd7388ec    1
-## 06eb32e29df10778b60c49356ef3b5e0    1
-## b7a2bc450146ff938fb3354ecc36444a    1
-## d5eb9156cd0592eb1cd773db88550ef3    1
-## 2aee17e668dd944e7792d625ec479fcf    1
-## d52d14abfccb539e79068c89454cbbbd    1
-## 64223c9ef560d611f5b9e7e5e78eb7ff    1
-## e50cc2a3da1dd7fd34ca4daba09a32ad    0
-## (Other)                             0
-```
-
-```r
-clam2=names(subset(clam, clam==2))
+clam=data.frame(clam)
+clam2=row.names(subset(clam, clam==2))
 length(clam2)
 ```
 
@@ -1803,115 +1620,8 @@ length(clam2)
 
 batch=subset(incorp_only, Culture=="Batch")
 clam=(summary(batch$OTU))
-data.frame(clam)
-```
-
-```
-##                                  clam
-## eb2625c1474f98f554b002fcd5d1088e    2
-## 68262884f1021c896f8e1bf7348d773c    2
-## 6e6f306a337ba255a7f4a7f8469ff691    2
-## 76a2e443105acc53d3461f176f38148c    2
-## 9255e939f667b42a03cb99246b86cb32    2
-## d1e7069c930bb4790713681f06f84cf0    2
-## aed191bac0b1c3264208a084af848bed    2
-## e4278f7eb9e1d1595866d1c4440c78c9    2
-## 7beab4f249af89a8aab102a03113ba62    2
-## c52287a7efd223c578b51937b849bf91    2
-## 9af3467db68cf6063627304cecd46a65    2
-## fb800d4d7cd0a8e0da07b414fcf21b8c    2
-## 710dab4db94586d934436dc307f766c9    2
-## 2c070f4880cc78c48ec292dd9c89b597    2
-## c56ae4705fd5cf31ed0b25fa86e22ed6    2
-## 8b2494a11c2f75ef0302082e2b542682    2
-## be9d6317e49313c0a8885815491ce6f0    2
-## af27577de5edb10c09f7fc19b9ca45ca    2
-## 9c886d46813a724862c055b0ed46e86d    2
-## 4964f339e90a20437a19d7ec3bcd8a1a    2
-## 4d65f65496c3d0238ebf74738245e526    2
-## 0e4971b9fdfe3044222a19f5b7f167dc    2
-## 0b06017e8169c7ce93b22574992470dc    2
-## 211b7bfb480d7e0ba8224a99279d1055    2
-## bd217e3552c0912e166951d39a120601    2
-## dc3835d12dc9edc210bddff9c66bf356    2
-## cfb98993000a7864ecd250723d57b8db    2
-## d4cc0a095dd016823ef8c5ad567c91fd    2
-## ffd660f96ba6668b2d8d86fc4e150862    2
-## 6b94959874b693c3304e68c57cefd287    2
-## e6c8443214bca5d5809bbb0c5644af52    2
-## 6267512d7ea98a0da430e5a6f96698e6    2
-## 2b4e6ccd11a78681bceaffed2053907f    2
-## 788f25619c77abb69cf199dd19233eb4    2
-## 8b08139d6eb5d7a849dff1bd579727d7    2
-## c4e16e2ca85ff9eb360fd895f75227ca    2
-## d5b23bb0b75b67df5ecd5ad44760b312    2
-## c530fa2c576c67ce632ce34474b8ea71    2
-## d56e5ac31cfe9e5dea7d4a63d13f1232    2
-## 92c0c75c6858840cbc21744f047e2a02    2
-## 177d2176a3368f43cc132f9e34a9405c    2
-## 755afc7ffddcfd5e093ea2222f4affd6    2
-## 64edc344889f4279a1292afbe81dc043    2
-## 7580ff42ec296410fd9b751933c26164    2
-## 4744c03db226d903293f9342f292e94d    2
-## 9cfa52be027c8fa57d197b21dd7a958c    2
-## afc0eeec83a181be740331928d883362    2
-## 1bccea8882fb44e316fa3626a2062514    2
-## 84ea3564fd34c5377c4305b340f0c16f    2
-## 11b50e80047289f589868d85531954f4    2
-## e747694a818ae82e58f977992c196fd0    2
-## 9176a4011d0b5a7a3fe654f25319091e    2
-## 3c8a9630951999d2b809868618b05848    2
-## 3bb0bf5132b0f988573de9bd6059b22c    2
-## b6a0ad25677cccdc5a6ada23f7e276b6    2
-## 9a64f65cc4a51bc87a27dbff7ecefdd6    2
-## 282d970c7e74112691085e63921dbcfd    2
-## e177a451db2600efdeb8bde47ef88671    1
-## fd3acdbb6eaf9e3669c9f303a6fa0b28    1
-## 448ee48054e6edfd36e703a6baecc8a8    1
-## efbe1f58b1e2984ddc53a64f047d94ff    1
-## a7b57a3495513cb6d0fae02b7d400ac7    1
-## 20ada5c0fa2722151f9039d1896592e8    1
-## 55ce73379b753a6d229a4febc0b1362d    1
-## 5914e4ffa20a5fa0b95bf68e5c9777b6    1
-## 6a679587c40215f64acb6b0231b57581    1
-## 29731c1ae123c2faa2b4184d96385388    1
-## 4800a9c596272fb238a316d893b0871e    1
-## fecd0294f7ecdb7bc5c54d01e9f541f0    1
-## 2da31e61296f678bb466e1ae0593e33d    1
-## 123fa4546d88beaa1017c112c3c600cc    1
-## 8735f92a7f18db944bc862777fbd3222    1
-## a51911fb468aee7787ca8edf2ad66641    1
-## 6070669b932f1826dc8b8e61495fd27c    1
-## fb2dab56bf8047ade734c2fceccb49e4    1
-## 7c338eeece15edbfcf8ed52c568f6fc2    1
-## a4e7c4029a5970db9ae5de9cb1b8ced9    1
-## c36646fabf5978777e0e7b08044e9568    1
-## 304d1a8fe851969c2eb82c85f9f88c11    1
-## 3fc227a79c6a108319409a05f87103f3    1
-## 9100c673ddb0128f63023d0c6d423792    1
-## 70f086828189cd2b21299d41e077a74a    1
-## 9ac9a274b64edbcb2b5e1e1c81743b51    1
-## c9eeb9179e405b1fd7846a8aefb864d1    1
-## be45460bb19ae26f588454f3dd7388ec    1
-## e416d0916760d2fc17b616e2ac3ad855    1
-## 7dd273cfe05a5c5e224f299f760201cf    1
-## bca82bc447bbd86d4a6a93e596e3aabd    0
-## 37762c5e9b1d5a5233d6caeef3660d6a    0
-## 5d2c9965718d1254c00a642f570eb604    0
-## 27c7baf02d6ba15f77c56b6acb9434c0    0
-## 50db42495de3aa6b40560c8c73e032d5    0
-## 06eb32e29df10778b60c49356ef3b5e0    0
-## b7a2bc450146ff938fb3354ecc36444a    0
-## d5eb9156cd0592eb1cd773db88550ef3    0
-## 2aee17e668dd944e7792d625ec479fcf    0
-## d52d14abfccb539e79068c89454cbbbd    0
-## 64223c9ef560d611f5b9e7e5e78eb7ff    0
-## e50cc2a3da1dd7fd34ca4daba09a32ad    0
-## (Other)                             0
-```
-
-```r
-clam2=names(subset(clam, clam==2))
+clam=data.frame(clam)
+clam2=row.names(subset(clam, clam==2))
 length(clam2)
 ```
 
@@ -1921,44 +1631,13 @@ length(clam2)
 
 ```r
 # 57 ASVs that are batch both single and multi and incorporators 
-batch_incorp=subset(batch, OTU %in% clam2)
-batch_incorp=data.frame(batch_incorp)
+# batch_incorp=subset(batch, OTU %in% clam2) for some reason this doesn't work in my markdown %in% so I have to save it all 
+# saveRDS(batch_incorp, 'datafiles/batch_incorp')
+batch_incorp=readRDS('datafiles/batch_incorp')
+# batch_incorp=data.frame(batch_incorp)
 
-summary(as.factor(batch_incorp$Class))
-```
-
-```
-##      Acidimicrobiia      Actinobacteria Alphaproteobacteria         Bacteroidia 
-##                   4                   8                  26                  42 
-## Gammaproteobacteria    Planctomycetacia    Verrucomicrobiae 
-##                  20                   8                   6
-```
-
-```r
-summary(as.factor(batch_incorp$Family))
-```
-
-```
-##                          Alteromonadaceae       Ambiguous_taxa 
-##                    2                    2                    2 
-##      Azospirillaceae     Burkholderiaceae     Caulobacteraceae 
-##                    2                   10                    2 
-##     Cellvibrionaceae     Chitinophagaceae            Clade III 
-##                    4                    2                    2 
-##    Crocinitomicaceae       Cryomorphaceae    Cyclobacteriaceae 
-##                    4                    8                    4 
-##          Devosiaceae           env.OPS 17    Flavobacteriaceae 
-##                    2                    2                   10 
-##   Ilumatobacteraceae       Isosphaeraceae     Methylophilaceae 
-##                    4                    2                    2 
-## NS11-12 marine group          Opitutaceae Paracaedibacteraceae 
-##                    2                    4                    2 
-##      Pedosphaeraceae        Pirellulaceae     Pseudomonadaceae 
-##                    2                    6                    2 
-##     Rhodobacteraceae       Saprospiraceae        Spirosomaceae 
-##                   10                    6                    2 
-##      Sporichthyaceae   Thalassobaculaceae uncultured bacterium 
-##                    6                    4                    2
+# summary(as.factor(batch_incorp$Class))
+# summary(as.factor(batch_incorp$Family))
 ```
 
 
@@ -2003,6 +1682,65 @@ abline(a=0,b=1,lty=2)
 ![](/Users/oliviaahern/Documents/GitHub/Sip_CopyNumber/docs/index_files/figure-html/batch-b-1.png)<!-- -->
 
 
+### batch multi eaf vs single eaf 
+
+```r
+both=cbind(single$A, multi$A, multi$Class, multi$copy_number)
+colnames(both)=c("Single","Multi", "Class", "copy_number")
+row.names(both)=multi$OTU
+both=data.frame(both)
+
+
+custom_colors_class=c("Acidimicrobiia" ="#f21277",
+                      "Actinobacteria" ="#a02016",
+                      "Alphaproteobacteria" ="#ffb659",
+                      "Bacteroidia" = "#48591c",
+                      "Chloroflexia"='gray',
+                      "Deltaproteobacteria" ="#01a34a",
+                      "Gammaproteobacteria" ="#7bc6ff",
+                      "OM190" = 'gray',
+                      "Planctomycetacia" ="#00539e",
+                      "Rhodothermia"='gray',
+                      "Thermoleophilia" = 'gray',
+                      "vadinHA49" = "gray", 
+                      "Verrucomicrobiae" ="#6868f2")
+
+both$Class_ag=both$Class
+both$Class_ag=as.factor(both$Class_ag)
+levels(both$Class_ag)=c("Acidimicrobiia","Actinobacteria","Alphaproteobacteria","Bacteroidia","Other","Deltaproteobacteria","Gammaproteobacteria","Other","Planctomycetacia", "Other", "Other", "Other","Verrucomicrobiae")
+
+custom_colors_class=c("Acidimicrobiia" ="#f21277",
+                      "Actinobacteria" ="#a02016",
+                      "Alphaproteobacteria" ="#ffb659",
+                      "Bacteroidia" = "#48591c",
+                                            "Other" = 'gray',
+
+                      "Deltaproteobacteria" ="#01a34a",
+                      "Gammaproteobacteria" ="#7bc6ff",
+                      "Planctomycetacia" ="#00539e",
+                      "Verrucomicrobiae" ="#6868f2")
+
+
+
+ggplot(both, aes(x=as.numeric(Multi), y=as.numeric(Single),  color=Class)) +
+  geom_point(size=as.numeric(both$copy_number), alpha=0.8) +
+  theme_bw() +
+  ylim(c(0,1)) + xlim(c(0,1))  +
+  theme(axis.line = element_line(colour = "black"),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank()) +
+    geom_smooth(method = "lm", se = FALSE, col='black') + 
+    geom_abline(intercept = 0, slope = 1, color = "black", linetype = "dashed", linewidth = 1) +
+  xlab("EAF Batch Multi Substrate") +
+  ylab("EAF Batch Single-Substrate") +
+  annotate("text", label="R2 = 0.30 \n F = 25.38 \n p = 5.4 e-6", x=0.8, y=0.4) +
+ #   scale_fill_manual(values=custom_colors_class) + 
+  scale_color_manual(values=custom_colors_class) 
+```
+
+![](/Users/oliviaahern/Documents/GitHub/Sip_CopyNumber/docs/index_files/figure-html/batch-bb-1.png)<!-- -->
+
+#### heatmap 
 
 ```r
 both=cbind(single$A, multi$A)

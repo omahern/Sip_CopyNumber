@@ -673,11 +673,39 @@ custom_colors_class=c("Actinobacteria"="#ff6b92",
   "vadinHA49" = "#e747a0",
   "Verrucomicrobiae" = "#ff6eb1")
 
+custom_colors_class=c("Acidimicrobiia" ="#f21277",
+                      "Actinobacteria" ="#a02016",
+                      "Alphaproteobacteria" ="#ffb659",
+                      "Bacteroidia" = "#48591c",
+                      "Chloroflexia"='gray',
+                      "Deltaproteobacteria" ="#01a34a",
+                      "Gammaproteobacteria" ="#7bc6ff",
+                      "OM190" = 'gray',
+                      "Planctomycetacia" ="#00539e",
+                      "Rhodothermia"='gray',
+                      "Thermoleophilia" = 'gray',
+                      "vadinHA49" = "gray", 
+                      "Verrucomicrobiae" ="#6868f2")
+incorp_only$Class_ag=incorp_only$Class
+incorp_only$Class_ag=as.factor(incorp_only$Class_ag)
+levels(incorp_only$Class_ag)=c("Acidimicrobiia","Actinobacteria","Alphaproteobacteria","Bacteroidia","Other","Deltaproteobacteria","Gammaproteobacteria","Other","Planctomycetacia", "Other", "Other", "Other","Verrucomicrobiae")
+
+custom_colors_class=c("Acidimicrobiia" ="#f21277",
+                      "Actinobacteria" ="#a02016",
+                      "Alphaproteobacteria" ="#ffb659",
+                      "Bacteroidia" = "#48591c",
+                                            "Other" = 'gray',
+
+                      "Deltaproteobacteria" ="#01a34a",
+                      "Gammaproteobacteria" ="#7bc6ff",
+                      "Planctomycetacia" ="#00539e",
+                      "Verrucomicrobiae" ="#6868f2")
+
 desired_order=c("Single", "Multi")
 incorp_only$Substrate <- factor(incorp_only$Substrate, levels = desired_order)
 
 
-ggplot(incorp_only, aes(x=A, y=Wlight, fill=Class, color=Class)) + 
+ggplot(incorp_only, aes(x=A, y=Wlight, fill=Class_ag, color=Class_ag)) + 
    geom_point(size=as.numeric(incorp_only$copy_number)) +
   #geom_point(size=3) +
   facet_wrap(Culture ~ Substrate) +
@@ -832,8 +860,10 @@ adonis2(gp.dist ~ as.factor(sample_data(GP)$Culture) +as.factor(sample_data(GP)$
 
 ## ASVs present in all three treatmnents
 
+I am not keeping this in because we used different CsTFA gradients for the batch and chemostat
+
 ```{r}
-summary(qsip_data$OTU)
+# summary(qsip_data$OTU)
 # two ASVs that were in all treatments positively 
 # ffd660f96ba6668b2d8d86fc4e150862
 # 84ea3564fd34c5377c4305b340f0c16f
@@ -1039,21 +1069,23 @@ text(0.6, -0.04, "EAF = 0.11")
 batch=subset(qsip_data, Culture=="Batch")
 clam=(summary(batch$OTU))
 clam=data.frame(clam)
-clam2=names(subset(clam, clam==2))
+clam2=row.names(subset(clam, clam==2))
 length(clam2)
 # 63 ASVs in batch both single and multi 
 
 batch=subset(incorp_only, Culture=="Batch")
 clam=(summary(batch$OTU))
 clam=data.frame(clam)
-clam2=names(subset(clam, clam==2))
+clam2=row.names(subset(clam, clam==2))
 length(clam2)
 # 57 ASVs that are batch both single and multi and incorporators 
-batch_incorp=subset(batch, OTU %in% clam2)
-batch_incorp=data.frame(batch_incorp)
+# batch_incorp=subset(batch, OTU %in% clam2) for some reason this doesn't work in my markdown %in% so I have to save it all 
+# saveRDS(batch_incorp, 'datafiles/batch_incorp')
+batch_incorp=readRDS('datafiles/batch_incorp')
+# batch_incorp=data.frame(batch_incorp)
 
-summary(as.factor(batch_incorp$Class))
-summary(as.factor(batch_incorp$Family))
+# summary(as.factor(batch_incorp$Class))
+# summary(as.factor(batch_incorp$Family))
 
 ```
 
@@ -1074,7 +1106,65 @@ abline(a=0,b=1,lty=2)
 ```
 
 
-```{r batch-c, message=FALSE, error=FALSE, warning=FALSE, dpi=300, fig.width=4, fig.height=12}
+### batch multi eaf vs single eaf 
+```{r batch-bb, message=FALSE, error=FALSE, warning=FALSE, dpi=300, fig.width=6, fig.height=4}
+
+both=cbind(single$A, multi$A, multi$Class, multi$copy_number)
+colnames(both)=c("Single","Multi", "Class", "copy_number")
+row.names(both)=multi$OTU
+both=data.frame(both)
+
+
+custom_colors_class=c("Acidimicrobiia" ="#f21277",
+                      "Actinobacteria" ="#a02016",
+                      "Alphaproteobacteria" ="#ffb659",
+                      "Bacteroidia" = "#48591c",
+                      "Chloroflexia"='gray',
+                      "Deltaproteobacteria" ="#01a34a",
+                      "Gammaproteobacteria" ="#7bc6ff",
+                      "OM190" = 'gray',
+                      "Planctomycetacia" ="#00539e",
+                      "Rhodothermia"='gray',
+                      "Thermoleophilia" = 'gray',
+                      "vadinHA49" = "gray", 
+                      "Verrucomicrobiae" ="#6868f2")
+
+both$Class_ag=both$Class
+both$Class_ag=as.factor(both$Class_ag)
+levels(both$Class_ag)=c("Acidimicrobiia","Actinobacteria","Alphaproteobacteria","Bacteroidia","Other","Deltaproteobacteria","Gammaproteobacteria","Other","Planctomycetacia", "Other", "Other", "Other","Verrucomicrobiae")
+
+custom_colors_class=c("Acidimicrobiia" ="#f21277",
+                      "Actinobacteria" ="#a02016",
+                      "Alphaproteobacteria" ="#ffb659",
+                      "Bacteroidia" = "#48591c",
+                                            "Other" = 'gray',
+
+                      "Deltaproteobacteria" ="#01a34a",
+                      "Gammaproteobacteria" ="#7bc6ff",
+                      "Planctomycetacia" ="#00539e",
+                      "Verrucomicrobiae" ="#6868f2")
+
+
+
+ggplot(both, aes(x=as.numeric(Multi), y=as.numeric(Single),  color=Class)) +
+  geom_point(size=as.numeric(both$copy_number), alpha=0.8) +
+  theme_bw() +
+  ylim(c(0,1)) + xlim(c(0,1))  +
+  theme(axis.line = element_line(colour = "black"),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank()) +
+    geom_smooth(method = "lm", se = FALSE, col='black') + 
+    geom_abline(intercept = 0, slope = 1, color = "black", linetype = "dashed", linewidth = 1) +
+  xlab("EAF Batch Multi Substrate") +
+  ylab("EAF Batch Single-Substrate") +
+  annotate("text", label="R2 = 0.30 \n F = 25.38 \n p = 5.4 e-6", x=0.8, y=0.4) +
+ #   scale_fill_manual(values=custom_colors_class) + 
+  scale_color_manual(values=custom_colors_class) 
+
+```
+
+#### heatmap 
+```{r batch-c, message=FALSE, error=FALSE, warning=FALSE, dpi=300, fig.width=4, fig.height=8}
 
 both=cbind(single$A, multi$A)
 colnames(both)=c("Single","Multi")

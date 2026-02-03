@@ -1153,13 +1153,69 @@ ggplot(incorp_only, aes(x=A, y=copy_number, color=Class_ag)) +
 ![](/Users/oliviaahern/Documents/GitHub/Sip_CopyNumber/docs/index_files/figure-html/copy-2ag-1.png)<!-- -->
 
 
+## Figure 1 alt2
+
+
+```r
+custom_colors_class=c("Acidimicrobiia" ="#f21277",
+                      "Actinobacteria" ="#a02016",
+                      "Alphaproteobacteria" ="#ffb659",
+                      "Bacteroidia" = "#48591c",
+                      "Chloroflexia"='gray',
+                      "Deltaproteobacteria" ="#01a34a",
+                      "Gammaproteobacteria" ="#7bc6ff",
+                      "OM190" = 'gray',
+                      "Planctomycetacia" ="#00539e",
+                      "Rhodothermia"='gray',
+                      "Thermoleophilia" = 'gray',
+                      "vadinHA49" = "gray", 
+                      "Verrucomicrobiae" ="#6868f2")
+incorp_only$Class_ag=incorp_only$Class
+incorp_only$Class_ag=as.factor(incorp_only$Class_ag)
+levels(incorp_only$Class_ag)=c("Acidimicrobiia","Actinobacteria","Alphaproteobacteria","Bacteroidia","Other","Deltaproteobacteria","Gammaproteobacteria","Other","Planctomycetacia", "Other", "Other", "Other","Verrucomicrobiae")
+
+custom_colors_class=c("Acidimicrobiia" ="#f21277",
+                      "Actinobacteria" ="#a02016",
+                      "Alphaproteobacteria" ="#ffb659",
+                      "Bacteroidia" = "#48591c",
+                                            "Other" = 'gray',
+
+                      "Deltaproteobacteria" ="#01a34a",
+                      "Gammaproteobacteria" ="#7bc6ff",
+                      "Planctomycetacia" ="#00539e",
+                      "Verrucomicrobiae" ="#6868f2")
+
+desired_order=c("Single", "Multi")
+incorp_only$Substrate <- factor(incorp_only$Substrate, levels = desired_order)
+
+formula = incorp_only$copy_number ~ incorp_only$A * incorp_only$Culture * incorp_only$Substrate
+
+ggplot(incorp_only, aes(x=A, y=copy_number, color=Class_ag)) +
+  #geom_point(size=as.numeric(incorp_only$copy_number)*0.7, alpha=0.8) +
+  geom_point(size=3) +
+  geom_smooth(method = "lm", se = TRUE, col='black',fullrange=TRUE)  +
+  facet_wrap(Culture ~ Substrate) +
+  theme_bw() +
+  xlab("Excess Atomic Fraction") +
+  ylab("16S Gene Copy Number") + 
+  theme(axis.line = element_line(colour = "black"),
+    panel.grid.major = element_blank(),
+    strip.text = element_text(size = 14, face = "bold"),
+    strip.background = element_blank(),
+    panel.grid.minor = element_blank()) +
+    scale_color_manual(values=custom_colors_class) 
+```
+
+![](/Users/oliviaahern/Documents/GitHub/Sip_CopyNumber/docs/index_files/figure-html/copy-2ag2-1.png)<!-- -->
+
+
 
 ### stats generated from here
 
 ```r
 par(mfrow=c(1,3))
 glu_only=subset(incorp_only, id=="batch_glu")
-
+set.seed(124)
 
 plot(glu_only$A, glu_only$copy_number, pch=21, cex=1.22, bg='black', xlab="AFE", ylab="Gene Copy Number")
 ll=lm(glu_only$copy_number~glu_only$A)
@@ -1189,9 +1245,9 @@ summary(ll)
 
 ```r
 abline(ll)
-text(0.2, 8, "R2 = 0.25 
-F = 28.54 
-p = 8.25e-7")
+text(0.2, 8, "R2 = 0.23 
+F = 25.92 
+p = 2.23e-06")
 
 
 batch_carbon=subset(incorp_only, id=="batch_carb")
@@ -1223,9 +1279,9 @@ summary(ll)
 
 ```r
 abline(ll)
-text(0.2, 8, "R2 = 0.03
-F = 2.10
-p = 0.15")
+text(0.2, 8, "R2 = 0.04975
+F = 4.089
+p = 0.04778")
 
 chemo_carbon=subset(incorp_only, id=="chemo_carb")
 plot(chemo_carbon$A, chemo_carbon$copy_number, pch=21, cex=1.22, bg='black', xlab="AFE", ylab="Gene Copy Number")
@@ -1318,7 +1374,7 @@ adonis2(gp.dist ~ as.factor(sample_data(GP)$Culture) +as.factor(sample_data(GP)$
 ## adonis2(formula = gp.dist ~ as.factor(sample_data(GP)$Culture) + as.factor(sample_data(GP)$Substrate))
 ##                                      Df SumOfSqs      R2        F Pr(>F)    
 ## as.factor(sample_data(GP)$Culture)    1  1178.81 0.81320 216.9951  0.001 ***
-## as.factor(sample_data(GP)$Substrate)  3    26.33 0.01816   1.6157  0.185    
+## as.factor(sample_data(GP)$Substrate)  3    26.33 0.01816   1.6157  0.164    
 ## Residual                             45   244.46 0.16864                    
 ## Total                                49  1449.60 1.00000                    
 ## ---
@@ -1381,7 +1437,7 @@ adonis2(gp.dist ~ as.factor(sample_data(GP)$Culture) +as.factor(sample_data(GP)$
 ## adonis2(formula = gp.dist ~ as.factor(sample_data(GP)$Culture) + as.factor(sample_data(GP)$Treatment), by = "margin")
 ##                                      Df SumOfSqs      R2       F Pr(>F)    
 ## as.factor(sample_data(GP)$Culture)    1  1324.73 0.48942 152.408  0.001 ***
-## as.factor(sample_data(GP)$Treatment)  1    25.98 0.00960   2.989  0.075 .  
+## as.factor(sample_data(GP)$Treatment)  1    25.98 0.00960   2.989  0.090 .  
 ## Residual                             47   408.52 0.15093                   
 ## Total                                49  2706.75 1.00000                   
 ## ---
@@ -1737,6 +1793,7 @@ abline(a=0,b=1,lty=2)
 
 ![](/Users/oliviaahern/Documents/GitHub/Sip_CopyNumber/docs/index_files/figure-html/batch-b-1.png)<!-- -->
 
+### Figure 1
 
 ### batch multi eaf vs single eaf 
 
@@ -1781,15 +1838,15 @@ custom_colors_class=c("Acidimicrobiia" ="#f21277",
 ggplot(both, aes(x=as.numeric(Multi), y=as.numeric(Single),  color=Class)) +
   geom_point(size=as.numeric(both$copy_number), alpha=0.8) +
   theme_bw() +
-  ylim(c(0,1)) + xlim(c(0,1))  +
+  ylim(c(0,0.8)) + xlim(c(0,0.8))  +
   theme(axis.line = element_line(colour = "black"),
     panel.grid.major = element_blank(),
     panel.grid.minor = element_blank()) +
-    geom_smooth(method = "lm", se = FALSE, col='black') + 
+    geom_smooth(method = "lm", se = TRUE, col='black',fullrange=TRUE) + 
     geom_abline(intercept = 0, slope = 1, color = "black", linetype = "dashed", linewidth = 1) +
   xlab("EAF Batch Multi Substrate") +
   ylab("EAF Batch Single-Substrate") +
-  annotate("text", label="R2 = 0.30 \n F = 25.38 \n p = 5.4 e-6", x=0.8, y=0.4) +
+  annotate("text", label="R2 = 0.30 \n F = 25.38 \n p = 5.4 e-6", x=0.6, y=0.4) +
  #   scale_fill_manual(values=custom_colors_class) + 
   scale_color_manual(values=custom_colors_class) 
 ```
@@ -1805,7 +1862,21 @@ row.names(both)=multi$OTU
 
 otus=multi$OTU
 # subset_batch=subset_taxa(phyo_frac, Strain %in% otus)
+summary(as.factor(incorp_only$Class))
+```
 
+```
+##      Acidimicrobiia      Actinobacteria Alphaproteobacteria         Bacteroidia 
+##                   4                  11                  48                  54 
+##        Chloroflexia Deltaproteobacteria Gammaproteobacteria               OM190 
+##                   1                   3                  47                   1 
+##    Planctomycetacia        Rhodothermia     Thermoleophilia           vadinHA49 
+##                  12                   2                   1                   1 
+##    Verrucomicrobiae 
+##                  12
+```
+
+```r
 # subset_batch_tree=phy_tree(subset_batch)
 subset_batch_tree=readRDS('datafiles/subset_batch_tree')
 tree2<-phylogram::as.dendrogram(subset_batch_tree)

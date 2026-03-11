@@ -1280,6 +1280,34 @@ ggplot(both, aes(x=as.numeric(Multi), y=as.numeric(Single),  color=Class)) +
 
 ```
 
+
+```{r legend-1, message=FALSE, error=FALSE, warning=FALSE, dpi=300, fig.width=8, fig.height=5}
+
+size_var <- abs(as.numeric(both$copy_number))
+# Define labels for the legend
+legend_labels <- c("1", "5", "9")
+# Define the sizes to use in the legend (e.g., representative values)
+legend_sizes <- c(0.5, 2, 4) 
+
+# 2. Create the main plot
+plot(both$Multi, both$Single, 
+     pch = 16, # Use a solid point type
+     cex = size_var, # Map the 'size_var' to the point size in the plot
+     col = "blue",
+     main = "Scatter plot with point size by value",
+     xlab = "X values",
+     ylab = "Y values")
+
+# 3. Add the legend using pt.cex
+legend("topleft", # Position of the legend
+       legend = legend_labels, # Text labels
+       pt.cex = legend_sizes, # Set the specific sizes for the legend points
+       pt.bg = "white",
+       pch=21,
+       title = "16S Gene Copy Number")
+
+```
+
 #### heatmap 
 ```{r batch-c, message=FALSE, error=FALSE, warning=FALSE, dpi=300, fig.width=4, fig.height=8}
 

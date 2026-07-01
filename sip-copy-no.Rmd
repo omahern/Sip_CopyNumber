@@ -95,8 +95,86 @@ qiime phylogeny align-to-tree-mafft-fasttree \
 ## Chemostat Stability
 
 
-
 ### SI Figure 2
+
+```{r si-fig-1-good, fig.height=8,fig.width=8, message=FALSE, error=FALSE, warning=FALSE}
+setwd("/Users/oliviaahern/Documents/GitHub/SIP_CopyNumber")
+
+
+{
+  
+# file contains info on MC2, Chemostat, measurements taken every 15 minutes
+data=read.csv(file="datafiles/m2_do_02_edit.csv",header=T)
+# subset to get the right time frame
+data=data.frame(data)
+data$T=as.numeric(data$T)
+read=subset(data, T <= 24)
+read=subset(read, T >= -100)
+
+time=read$T
+ph= read$pH.M2
+do=read$DO.M2..uM.
+heado=read$O2.M2....
+heado2=read$CO2.M2....
+
+  par(mar=c(2,7,1,5), mfrow=c(3,1),xpd=F)
+  plot(time, do,type='l',col='blue',xlab=" ", ylab = "", xlim=c(-100,25), xaxt='n', xaxs = 'i',cex.axis=1.4, yaxt='n')
+  axis(2, at=c(200,210,220),cex.axis=1.4)
+  rect(xleft=0, xright=240, ybottom=111, ytop=300, col= rgb(0.7,0.7,0.7,alpha=0.2),
+    border=NA)
+  mtext(side=2,"Dissolved Oxygen (uM)", col = 'blue', padj=-3)
+    axis(side=1, at=c(-450,-144,-100, 0, 24, 48, 72, 120, 240),cex.axis=1.4,labels = FALSE)
+  par(new = TRUE)
+  plot(time, ph,col='red',type = "l", axes = FALSE, bty = "n", xlab = "", ylab = "",xlim=c(-100,25),xaxs = 'i',cex.axis=1.4)
+  mtext(side=4, "pH", col ='red', line=3)
+  axis(side=4, at = c(6.4, 6.55,6.6),cex.axis=1.4)
+  mtext("a", adj=-.12,padj=-10,side=1,srt=-90,cex=1.5,font=1)
+#  legend(25,7.4,legend=c("12C Glucose", "13C Glucose"), pch=22, pt.bg=c("white",'gray70'), bt='n')
+  
+  
+  
+  plot(time, heado,type='l',col='navy',xlab=" ", ylab = "", xlim=c(-100,25), xaxt='n', xaxs = 'i',cex.axis=1.4, yaxt='n')
+  axis(2, at=c(20.52, 20.57,20.62),cex.axis=1.4)
+  rect(xleft=0, xright=240, ybottom=0, ytop=300, col= rgb(0.7,0.7,0.7,alpha=0.2),border=NA)
+  mtext(side=2,"Oxygen (%)", col = 'navy', padj=-3)
+    axis(side=1, at=c(-450,-144,-100, 0, 24, 48, 72, 120, 240),cex.axis=1.4,labels=FALSE)
+  par(new = TRUE)
+  plot(time, heado2,col='forestgreen',type = "l", axes = FALSE, bty = "n", xlab = "", xlim=c(-100,24),ylab = "", xaxs = 'i',cex.axis=1.4, yaxt='n')
+  mtext(side=4, "CO2 (%)", col ='forestgreen', line=3)
+  axis(side=4, at = c(0.27,0.3,0.34),cex.axis=1.4)
+  mtext("b", adj=-.12,padj=-10,side=1,srt=-90,cex=1.5,font=1)
+ 
+# file contains info on MC2, Chemostat, data was taken daily
+read=read.csv(file="datafiles/states_gluc.csv",header=T)
+read=read[1:7,]
+read=data.frame(read)
+glucose=read$Glucose_um
+time_glucose=read$Time
+  
+  # par(mar=c(5,41.5,1,5))
+  plot(time_glucose,read$Glucose_um,type='o',ylim=c(0,12),xlab= " ",
+       ylab = " ",col='gray50',bg='gray50',pch=21,cex.axis=1,cex.lab=1,cex=1.2,lwd=1.7, xlim=c(-100,24), xaxs = 'i',
+       yaxt='n', xaxt='n',cex.axis=1.4) #xaxt=c(-144,0,48,120,240))
+  rect(xleft=0, xright=24, ybottom=0, ytop=12, col= rgb(0.7,0.7,0.7,alpha=0.2),
+    border=NA)
+  mtext(side=2, "Glucose (um)", padj=-3, col="gray50")
+  axis(side=2,at=c(0,4,8,12),cex.axis=1.4)
+  par(new = TRUE)
+  plot(time_glucose,read$Atom..13C,pch=23, lwd=1.7,
+       bg='black',type = "o", axes = FALSE, bty = "n", xlab = "", ylab = "", ylim=c(0,30), cex=1.2,xlim=c(-100,25), xaxs = 'i',cex.axis=1.4)
+  mtext(side=4, "Atomic 13C (%)", line=3)
+  axis(side=4, at=c(0, 10,20,30),cex.axis=1.4)
+    axis(side=1, at=c(-144,-100, 0, 24),cex.axis=1.4)
+
+  mtext(side=1, "Time (hours)", line=3)
+  #legend('topleft',legend=c("Glucose (uM)","Atomic 13C"), pch =c(21,23), pt.bg= c('gray70','black'), bty='n')
+ # mtext("c", adj=-.15,padj=-9,side=1,srt=-90,cex=1.5,font=1)
+    mtext("c", adj=-.12,padj=-10,side=1,srt=-90,cex=1.5,font=1)
+
+}
+```
+
+### SI Figure 2 (old)
 
 ```{r si-fig-1, fig.height=8,fig.width=8, message=FALSE, error=FALSE, warning=FALSE}
 setwd("/Users/oliviaahern/Documents/GitHub/SIP_CopyNumber")
@@ -107,7 +185,9 @@ setwd("/Users/oliviaahern/Documents/GitHub/SIP_CopyNumber")
 # file contains info on MC2, Chemostat, measurements taken every 15 minutes
 data=read.csv(file="datafiles/m2_do_02_edit.csv",header=T)
 # subset to get the right time frame
-read=subset(data, T<24)
+data=data.frame(data)
+data$T=as.numeric(data$T)
+read=subset(data, T <= 24)
 
 time=read$T
 ph= read$pH.M2
@@ -116,26 +196,26 @@ heado=read$O2.M2....
 heado2=read$CO2.M2....
 
   par(mar=c(2,7,1,5), mfrow=c(3,1),xpd=F)
-  plot(time, do,type='l',col='blue',xlab=" ", ylab = "", xlim=c(-450,24), xaxt='n')
+  plot(time, do,type='l',col='blue',xlab=" ", ylab = "", xlim=c(-450,25), xaxt='n', xaxs = 'i')
   rect(xleft=0, xright=240, ybottom=111, ytop=300, col= rgb(0.7,0.7,0.7,alpha=0.2),
     border=NA)
   mtext(side=2,"Dissolved Oxygen (uM)", col = 'blue', padj=-3)
-    axis(side=1, at=c(-450,-144, 0, 24, 48, 72, 120, 240))
+    axis(side=1, at=c(-450,-144,-100, 0, 24, 48, 72, 120, 240))
   par(new = TRUE)
-  plot(time, ph,col='red',type = "l", axes = FALSE, bty = "n", xlab = "", ylab = "",xlim=c(-450,24))
+  plot(time, ph,col='red',type = "l", axes = FALSE, bty = "n", xlab = "", ylab = "",xlim=c(-450,25),xaxs = 'i')
   mtext(side=4, "pH", col ='red', line=3)
   axis(side=4, at = c(6.5, 6.7, 7, 7.2, 7.4))
   mtext("a", adj=-.10,padj=-10,side=1,srt=-90,cex=1.5,font=1)
-  legend(25,7.4,legend=c("12C Glucose", "13C Glucose"), pch=22, pt.bg=c("white",'gray70'), bt='n')
+#  legend(25,7.4,legend=c("12C Glucose", "13C Glucose"), pch=22, pt.bg=c("white",'gray70'), bt='n')
   
   
   
-  plot(time, heado,type='l',col='navy',xlab=" ", ylab = "", xlim=c(-450,24), xaxt='n')
+  plot(time, heado,type='l',col='navy',xlab=" ", ylab = "", xlim=c(-450,25), xaxt='n', xaxs = 'i')
   rect(xleft=0, xright=240, ybottom=0, ytop=300, col= rgb(0.7,0.7,0.7,alpha=0.2),border=NA)
   mtext(side=2,"Oxygen (%)", col = 'navy', padj=-3)
-  axis(side=1, at=c(-450,-144, 0, 24,  48, 72, 120, 240))
+    axis(side=1, at=c(-450,-144,-100, 0, 24, 48, 72, 120, 240))
   par(new = TRUE)
-  plot(time, heado2,col='forestgreen',type = "l", axes = FALSE, bty = "n", xlab = "", xlim=c(-450,24),ylab = "")
+  plot(time, heado2,col='forestgreen',type = "l", axes = FALSE, bty = "n", xlab = "", xlim=c(-450,24),ylab = "", xaxs = 'i')
   mtext(side=4, "CO2 (%)", col ='forestgreen', line=3)
   axis(side=4, at = c(0,0.1,0.2,0.3,0.4))
   mtext("b", adj=-.1,padj=-10,side=1,srt=-90,cex=1.5,font=1)
@@ -143,23 +223,25 @@ heado2=read$CO2.M2....
 # file contains info on MC2, Chemostat, data was taken daily
 read=read.csv(file="datafiles/states_gluc.csv",header=T)
 read=read[1:7,]
+read=data.frame(read)
 glucose=read$Glucose_um
 time_glucose=read$Time
   
-   par(mar=c(5,35,1,5))
-  plot(read$Time,read$Glucose_um,type='o',ylim=c(0,12),xlab= " ",
-       ylab = " ",col='gray50',bg='gray50',pch=21,cex.axis=1,cex.lab=1,cex=1.2,lwd=1.4, xlim=c(-144,24),
+   par(mar=c(5,41.5,1,5))
+  plot(time_glucose,read$Glucose_um,type='l',ylim=c(0,12),xlab= " ",
+       ylab = " ",col='gray50',bg='gray50',pch=21,cex.axis=1,cex.lab=1,cex=1.2,lwd=1.7, xlim=c(-144,24), xaxs = 'i',
        yaxt='n', xaxt='n') #xaxt=c(-144,0,48,120,240))
-  rect(xleft=0, xright=240, ybottom=0, ytop=12, col= rgb(0.7,0.7,0.7,alpha=0.2),
+  rect(xleft=0, xright=24, ybottom=0, ytop=12, col= rgb(0.7,0.7,0.7,alpha=0.2),
     border=NA)
   mtext(side=2, "Glucose (um)", padj=-3, col="gray50")
   axis(side=2,at=c(0,4,8,12), cex=1.3)
-  axis(side=1, at=c(-144, 0, 24,  48, 72, 120, 240))
   par(new = TRUE)
-  plot(read$Time,read$Atom..13C,pch=23, 
-       bg='black',type = "o", axes = FALSE, bty = "n", xlab = "", ylab = "", ylim=c(0,30), cex=1.2,xlim=c(-144,24))
+  plot(time_glucose,read$Atom..13C,pch=23, lwd=1.7,
+       bg='black',type = "l", axes = FALSE, bty = "n", xlab = "", ylab = "", ylim=c(0,30), cex=1.2,xlim=c(-144,25), xaxs = 'i')
   mtext(side=4, "Atomic 13C (%)", line=3)
   axis(side=4, at=c(0, 10,20,30))
+    axis(side=1, at=c(-144,-100, 0, 24))
+
   mtext(side=1, "Time (hours)", line=3)
   #legend('topleft',legend=c("Glucose (uM)","Atomic 13C"), pch =c(21,23), pt.bg= c('gray70','black'), bty='n')
   mtext("c", adj=-.15,padj=-9,side=1,srt=-90,cex=1.5,font=1)
@@ -669,6 +751,42 @@ abline(ll)
 ```
 
 
+## IOC
+```{r ioc_1, message=FALSE, error=FALSE, warning=FALSE}
+qsip_data
+ioc_data=read.csv("datafiles/gtdb_r220_ioc.csv",header=T)
+ioc_data=read.csv("datafiles/gtdb_r220_ioc_25june26.csv",header=T)
+
+qsip_data_ioc=merge(qsip_data, ioc_data, by='OTU')
+
+
+qsip_data_ioc_aa = subset(qsip_data_ioc, Incorporator == "TRUE")
+plot(qsip_data_ioc_aa$Wlight, qsip_data_ioc_aa$IoC_genus_mean)
+
+boxplot(qsip_data_ioc$IoC_genus_mean~qsip_data_ioc$id)
+
+par(mfrow=c(1,2))
+boxplot(qsip_data_ioc$IoC_genus_mean~qsip_data_ioc$id)
+a=aov(qsip_data_ioc$IoC_genus_mean~qsip_data_ioc$id)
+summary(a)
+tuk=TukeyHSD(a)
+plot(tuk,las=2)
+tuk
+ag <- aggregate(IoC_genus_mean ~ id, qsip_data_ioc_aa, function(x) c(mean = mean(x), sd = sd(x)))
+ag
+
+
+ss=subset(incorp_only, id=='chemo_carb')
+ss1=ss$OTU
+
+incorp_w_ioc=readRDS('datafiles/incorp_w_ioc')
+
+ss3=subset(incorp_w_ioc, id=="chemo_carb")
+ss4=ss3$OTU
+
+setdiff(ss1,ss4)
+
+```
 
 
 ## figure with afe and control buoyant density 
@@ -742,12 +860,44 @@ ggplot(incorp_only, aes(x=A, y=Wlight, fill=Class_ag, color=Class_ag)) +
     strip.background = element_blank(),
     panel.grid.minor = element_blank())
 
+
+# new
+ggplot(incorp_only, aes(x=A, y=Wlight,  fill=Class_ag, color= Class_ag,size=copy_number, linewidth=0)) +
+#  geom_smooth(method = "lm", se = TRUE, col='black',fullrange=TRUE,linewidth=1) + 
+ # geom_point(size=as.numeric(both$copy_number), alpha=0.8) +
+   geom_point(alpha=0.8,show.legend=TRUE)+
+    theme_bw(base_size = 12) + 
+
+  facet_wrap(Culture ~ Substrate) +
+  theme_bw() +
+  theme(legend.position='right') +
+  scale_fill_manual(values=custom_colors_class) + 
+  scale_color_manual(values=custom_colors_class) +
+      scale_y_reverse() +
+  xlab("EAF") +
+  ylab(expression(" "*C^12*" Control Buoyant Density (g/mL)")) + 
+  theme(axis.line = element_line(colour = "black"),
+    panel.grid.major = element_blank(),
+    strip.text = element_text(size = 12),
+    strip.background = element_blank(),
+    panel.grid.minor = element_blank()) + scale_color_manual(values=custom_colors_class) + guides(color = guide_legend(override.aes = list(size = 4)))
+
+
 ```
 
 
 
 
-```{r legend-1, message=FALSE, error=FALSE, warning=FALSE, dpi=300, fig.width=8, fig.height=5}
+```{r legend-1c, message=FALSE, error=FALSE, warning=FALSE, dpi=300, fig.width=8, fig.height=5}
+batch_incorp=readRDS('datafiles/batch_incorp')
+
+
+multi=subset(batch_incorp, Substrate=="Multi")
+single=subset(batch_incorp, Substrate=="Single")
+both=cbind(single$A, multi$A, multi$Class, multi$copy_number)
+colnames(both)=c("Single","Multi", "Class", "copy_number")
+row.names(both)=multi$OTU
+both=data.frame(both)
 
 size_var <- abs(as.numeric(both$copy_number))
 # Define labels for the legend
@@ -831,6 +981,21 @@ ggplot(incorp_only, aes(x=A, y=copy_number, color=Class_ag)) +
     scale_color_manual(values=custom_colors_class) 
 
 
+plot_16s=ggplot(incorp_only, aes(x=A, y=copy_number, color=Class_ag)) +
+  #geom_point(size=as.numeric(incorp_only$copy_number)*0.7, alpha=0.8) +
+  geom_point(size=3) +
+  geom_smooth(method = "lm", se = TRUE, col='black',fullrange=TRUE)  +
+  facet_wrap(Culture ~ Substrate) +
+  theme_bw(base_size=12) +
+  xlab("Excess Atomic Fraction") +
+  ylab("16S GCN") + 
+  theme(axis.line = element_line(colour = "black"),
+    panel.grid.major = element_blank(),
+    strip.text = element_text(size = 12),
+    strip.background = element_blank(),
+    panel.grid.minor = element_blank(), legend.position='none') +
+    scale_color_manual(values=custom_colors_class) 
+
 
 ```
 
@@ -868,6 +1033,162 @@ summary(ll)
 abline(ll)
 
 ```
+
+
+
+## Figure IoC
+
+```{r copy-ico, message=FALSE, error=FALSE, warning=FALSE, dpi=300, fig.width=8, fig.height=5}
+
+ioc_data=read.csv("datafiles/gtdb_r220_ioc.csv",header=T)
+ioc_data=read.csv("datafiles/gtdb_r220_ioc_25june26.csv",header=T)
+
+incorp1=read.csv('datafiles/incorporators.csv',header = T)
+
+incorp_w_ioc=merge(incorp1, ioc_data, by='OTU')
+
+custom_colors_class=c("Acidimicrobiia" ="#f21277",
+                      "Actinobacteria" ="#a02016",
+                      "Alphaproteobacteria" ="#ffb659",
+                      "Bacteroidia" = "#48591c",
+                      "Chloroflexia"='gray',
+                      "Deltaproteobacteria" ="#01a34a",
+                      "Gammaproteobacteria" ="#7bc6ff",
+                      "OM190" = 'gray',
+                      "Planctomycetacia" ="#00539e",
+                      "Rhodothermia"='gray',
+                      "Thermoleophilia" = 'gray',
+                      "vadinHA49" = "gray", 
+                      "Verrucomicrobiae" ="#6868f2")
+incorp_only$Class_ag=incorp_only$Class
+incorp_only$Class_ag=as.factor(incorp_only$Class_ag)
+levels(incorp_only$Class_ag)=c("Acidimicrobiia","Actinobacteria","Alphaproteobacteria","Bacteroidia","Other","Deltaproteobacteria","Gammaproteobacteria","Other","Planctomycetacia", "Other", "Other", "Other","Verrucomicrobiae")
+
+custom_colors_class=c("Acidimicrobiia" ="#f21277",
+                      "Actinobacteria" ="#a02016",
+                      "Alphaproteobacteria" ="#ffb659",
+                      "Bacteroidia" = "#48591c",
+                                            "Other" = 'gray',
+
+                      "Deltaproteobacteria" ="#01a34a",
+                      "Gammaproteobacteria" ="#7bc6ff",
+                      "Planctomycetacia" ="#00539e",
+                      "Verrucomicrobiae" ="#6868f2")
+
+desired_order=c("Single", "Multi")
+incorp_w_ioc$Substrate <- factor(incorp_w_ioc$Substrate, levels = desired_order)
+
+formula = incorp_w_ioc$IoC_genus_mean ~ incorp_w_ioc$A * incorp_w_ioc$Culture * incorp_w_ioc$Substrate
+
+ggplot(incorp_w_ioc, aes(x=A, y=IoC_genus_mean, color=Class_ag)) +
+  #geom_point(size=as.numeric(incorp_only$copy_number)*0.7, alpha=0.8) +
+  geom_point(size=3) +
+  geom_smooth(method = "lm", se = TRUE, col='black',fullrange=TRUE)  +
+  facet_wrap(Culture ~ Substrate) +
+  theme_bw(base_size=12) +
+  xlab("Excess Atomic Fraction") +
+  ylab("Index of Copiotrophy") + 
+  theme(axis.line = element_line(colour = "black"),
+    panel.grid.major = element_blank(),
+    strip.text = element_text(size = 12),
+    strip.background = element_blank(),
+    panel.grid.minor = element_blank()) +
+    scale_color_manual(values=custom_colors_class) 
+
+
+copio_plot=ggplot(incorp_w_ioc, aes(x=A, y=IoC_genus_mean, color=Class_ag)) +
+  #geom_point(size=as.numeric(incorp_only$copy_number)*0.7, alpha=0.8) +
+  geom_point(size=3) +
+  geom_smooth(method = "lm", se = TRUE, col='black',fullrange=TRUE)  +
+  facet_wrap(Culture ~ Substrate) +
+  theme_bw(base_size=12) +
+  xlab("Excess Atomic Fraction") +
+  ylab("Index of Copiotrophy") + 
+  theme(axis.line = element_line(colour = "black"),
+    panel.grid.major = element_blank(),
+    strip.text = element_text(size = 12),
+    strip.background = element_blank(),
+    panel.grid.minor = element_blank(), legend.position = 'none') +
+    scale_color_manual(values=custom_colors_class) 
+```
+
+
+
+```{r copy-ico2, message=FALSE, error=FALSE, warning=FALSE, dpi=300, fig.width=8, fig.height=5}
+library(ggh4x)
+plot_16sa= plot_16s+ force_panelsizes(rows = unit(2.5, "in"), 
+                     cols = unit(2.5, "in"))
+copio_plota=copio_plot+ force_panelsizes(rows = unit(2.5, "in"), 
+                     cols = unit(2.5, "in"))
+quahog=cowplot::plot_grid(plot_16sa,copio_plota,
+                   align='h',
+                   axis='l',
+                   byrow=TRUE,
+                   nrow=2)
+ggsave('figure2_withioc.svg', plot=quahog, dpi=300)
+
+
+copio_plot3=ggplot(incorp_w_ioc, aes(x=A, y=IoC_genus_mean, color=Class_ag)) +
+  #geom_point(size=as.numeric(incorp_only$copy_number)*0.7, alpha=0.8) +
+  geom_point(size=3) +
+  geom_smooth(method = "lm", se = TRUE, col='black',fullrange=TRUE)  +
+  facet_wrap(Culture ~ Substrate) +
+  theme_bw(base_size=12) +
+  xlab("Excess Atomic Fraction") +
+  ylab("Index of Copiotrophy") + 
+  theme(axis.line = element_line(colour = "black"),
+    panel.grid.major = element_blank(),
+    strip.text = element_text(size = 12),
+    strip.background = element_blank(),
+    panel.grid.minor = element_blank(), legend.position = 'bottom') +
+    scale_color_manual(values=custom_colors_class) + force_panelsizes(rows = unit(2.5, "in"), 
+                     cols = unit(2.5, "in"))
+copio_plot3
+
+
+ggsave('copioplot_legend.svg', plot=copio_plot3, dpi=300)
+
+cowplot::plot_grid(copio_plot3,
+                   align='h',
+                   axis='l',
+                   byrow=TRUE,
+                   nrow=2)
+```
+
+### stats generated from here
+```{r copy-5, message=FALSE, error=FALSE, warning=FALSE, dpi=300, fig.width=8, fig.height=5}
+
+par(mfrow=c(1,3))
+glu_only=subset(incorp_w_ioc, id=="batch_glu")
+set.seed(124)
+
+plot(glu_only$A, glu_only$IoC_genus_mean, pch=21, cex=1.22, bg='black', xlab="AFE", ylab="IoC_genus_mean")
+ll=lm(glu_only$IoC_genus_mean~glu_only$A)
+summary(ll)
+abline(ll)
+text(0.2, 6, "R2 = 0.2656 
+F = 23.07 
+p = 1.083e-05")
+
+
+batch_carbon=subset(incorp_w_ioc, id=="batch_carb")
+plot(batch_carbon$A, batch_carbon$IoC_genus_mean, pch=21, cex=1.22, bg='black', xlab="AFE", ylab="IoC_genus_mean")
+ll=lm(batch_carbon$IoC_genus_mean~batch_carbon$A)
+summary(ll)
+abline(ll)
+text(0.2, 5, "R2 = 0.077
+F = 4.257
+p = 0.045")
+
+chemo_carbon=subset(incorp_w_ioc, id=="chemo_carb")
+plot(chemo_carbon$A, chemo_carbon$IoC_genus_mean, pch=21, cex=1.22, bg='black', xlab="AFE", ylab="IoC_genus_mean")
+ll=lm(chemo_carbon$IoC_genus_mean~chemo_carbon$A)
+summary(ll)
+abline(ll)
+
+```
+
+
 
 # Beta diversity metrics 
 These are to see if there are differences in commuinty between the batch and chemostat because there was different innoculum and different sequencing centers 
@@ -1181,6 +1502,8 @@ batch_incorp=readRDS('datafiles/batch_incorp')
 ```
 
 
+
+
 ```{r batch-b, message=FALSE, error=FALSE, warning=FALSE, dpi=300, fig.width=5, fig.height=5}
 
 multi=subset(batch_incorp, Substrate=="Multi")
@@ -1195,11 +1518,13 @@ text(0.8, 0.4, "R2 = 0.30 \n F = 25.38 \n p = 5.4 e-6")
 abline(a=0,b=1,lty=2)
 
 ```
-
 ### Figure 3
 
 ### batch multi eaf vs single eaf 
 ```{r batch-bb, message=FALSE, error=FALSE, warning=FALSE, dpi=300, fig.width=6, fig.height=4}
+multi=subset(batch_incorp, Substrate=="Multi")
+single=subset(batch_incorp, Substrate=="Single")
+
 
 both=cbind(single$A, multi$A, multi$Class, multi$copy_number)
 colnames(both)=c("Single","Multi", "Class", "copy_number")
@@ -1238,7 +1563,7 @@ custom_colors_class=c("Acidimicrobiia" ="#f21277",
 
 
 
-ggplot(both, aes(x=as.numeric(Multi), y=as.numeric(Single),  color=Class)) +
+ggplot(both, aes(x=as.numeric(Multi), y=as.numeric(Single),  color=Class, linewidth=as.numeric(copy_number))) +
   geom_point(size=as.numeric(both$copy_number), alpha=0.8) +
   theme_bw() +
   ylim(c(0,0.8)) + xlim(c(0,0.8))  +
@@ -1249,12 +1574,196 @@ ggplot(both, aes(x=as.numeric(Multi), y=as.numeric(Single),  color=Class)) +
     geom_abline(intercept = 0, slope = 1, color = "black", linetype = "dashed", linewidth = 1) +
   xlab("EAF multi-substrate batch") +
   ylab("EAF single-substrate batch") +
-  annotate("text", label="R2 = 0.30 \n F = 25.38 \n p = 5.4 e-6", x=0.6, y=0.4) +
+#  annotate("text", label="R2 = 0.30 \n F = 25.38 \n p = 5.4 e-6", x=0.6, y=0.4) +
  #   scale_fill_manual(values=custom_colors_class) + 
   scale_color_manual(values=custom_colors_class) 
 
+
+
+# new
+ggplot(both, aes(x=as.numeric(Multi), y=as.numeric(Single),  color=Class, size=as.numeric(copy_number), linewidth=0)) +
+  geom_smooth(method = "lm", se = TRUE, col='black',fullrange=TRUE,linewidth=1) + 
+ # geom_point(size=as.numeric(both$copy_number), alpha=0.8) +
+   geom_point(alpha=0.8,show.legend=TRUE)+
+  theme_bw(base_size = 12) + 
+ # scale_size(range = c(1, 10)) +
+  ylim(c(0,0.8)) + xlim(c(0,0.8))  +
+  theme(axis.line = element_line(colour = "black"),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    strip.text = element_text(size = 12)) +
+ guides(color = guide_legend(override.aes = list(linetype = 0))) +
+  geom_abline(intercept = 0, slope = 1, color = "black", linetype = "dashed") +
+  xlab("EAF multi-substrate batch") +
+  ylab("EAF single-substrate batch") +
+#  annotate("text", label="R2 = 0.30 \n F = 25.38 \n p = 5.4 e-6", x=0.6, y=0.4) +
+ #   scale_fill_manual(values=custom_colors_class) + 
+  scale_color_manual(values=custom_colors_class) + guides(color = guide_legend(override.aes = list(size = 4)))
+
+new2=ggplot(both, aes(x=as.numeric(Single), y=as.numeric(Multi),  color=Class, size=as.numeric(copy_number), linewidth=0)) +
+  geom_smooth(method = "lm", se = TRUE, col='black',fullrange=TRUE,linewidth=1) + 
+ # geom_point(size=as.numeric(both$copy_number), alpha=0.8) +
+   geom_point(alpha=0.8,show.legend=TRUE)+
+  theme_bw(base_size = 12) + 
+ # scale_size(range = c(1, 10)) +
+  ylim(c(0,0.8)) + xlim(c(0,0.8))  +
+  theme(axis.line = element_line(colour = "black"),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    strip.text = element_text(size = 12)) +
+ guides(color = guide_legend(override.aes = list(linetype = 0))) +
+  geom_abline(intercept = 0, slope = 1, color = "black", linetype = "dashed") +
+  xlab("EAF single-substrate batch") +
+  ylab("EAF multi-substrate batch") +
+#  annotate("text", label="R2 = 0.30 \n F = 25.38 \n p = 5.4 e-6", x=0.6, y=0.4) +
+ #   scale_fill_manual(values=custom_colors_class) + 
+  scale_color_manual(values=custom_colors_class) + guides(color = guide_legend(override.aes = list(size = 4)))
+new2
+ggsave(filename = 'figure3.svg', new2, dpi=300,height=3.7, width=6, units='in')
+
+
 ```
 
+
+
+### batch multi eaf vs single eaf 
+```{r batch-bbc, message=FALSE, error=FALSE, warning=FALSE, dpi=300, fig.width=6, fig.height=4}
+
+both=cbind(single$A, multi$A, multi$Class, multi$copy_number)
+colnames(both)=c("Single","Multi", "Class", "copy_number")
+row.names(both)=multi$OTU
+both=data.frame(both)
+
+
+custom_colors_class=c("Acidimicrobiia" ="#f21277",
+                      "Actinobacteria" ="#a02016",
+                      "Alphaproteobacteria" ="#ffb659",
+                      "Bacteroidia" = "#48591c",
+                      "Chloroflexia"='gray',
+                      "Deltaproteobacteria" ="#01a34a",
+                      "Gammaproteobacteria" ="#7bc6ff",
+                      "OM190" = 'gray',
+                      "Planctomycetacia" ="#00539e",
+                      "Rhodothermia"='gray',
+                      "Thermoleophilia" = 'gray',
+                      "vadinHA49" = "gray", 
+                      "Verrucomicrobiae" ="#6868f2")
+
+both$Class_ag=both$Class
+both$Class_ag=as.factor(both$Class_ag)
+levels(both$Class_ag)=c("Acidimicrobiia","Actinobacteria","Alphaproteobacteria","Bacteroidia","Other","Deltaproteobacteria","Gammaproteobacteria","Other","Planctomycetacia", "Other", "Other", "Other","Verrucomicrobiae")
+
+custom_colors_class=c("Acidimicrobiia" ="#f21277",
+                      "Actinobacteria" ="#a02016",
+                      "Alphaproteobacteria" ="#ffb659",
+                      "Bacteroidia" = "#48591c",
+                                            "Other" = 'gray',
+
+                      "Deltaproteobacteria" ="#01a34a",
+                      "Gammaproteobacteria" ="#7bc6ff",
+                      "Planctomycetacia" ="#00539e",
+                      "Verrucomicrobiae" ="#6868f2")
+
+
+
+ggplot(both, aes(x=as.numeric(Multi), y=as.numeric(Single),  color=Class, linewidth=as.numeric(copy_number))) +
+  geom_point(size=as.numeric(both$copy_number), alpha=0.8) +
+  theme_bw() +
+  ylim(c(0,0.8)) + xlim(c(0,0.8))  +
+  theme(axis.line = element_line(colour = "black"),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank()) +
+    geom_smooth(method = "lm", se = TRUE, col='black',fullrange=TRUE) + 
+    geom_abline(intercept = 0, slope = 1, color = "black", linetype = "dashed", linewidth = 1) +
+  xlab("EAF multi-substrate batch") +
+  ylab("EAF single-substrate batch") +
+#  annotate("text", label="R2 = 0.30 \n F = 25.38 \n p = 5.4 e-6", x=0.6, y=0.4) +
+ #   scale_fill_manual(values=custom_colors_class) + 
+  scale_color_manual(values=custom_colors_class) 
+
+
+
+# new
+ggplot(both, aes(x=as.numeric(Multi), y=as.numeric(Single),  color=Class, size=as.numeric(copy_number), linewidth=0)) +
+  geom_smooth(method = "lm", se = TRUE, col='black',fullrange=TRUE,linewidth=1) + 
+ # geom_point(size=as.numeric(both$copy_number), alpha=0.8) +
+   geom_point(alpha=0.8,show.legend=TRUE)+
+  theme_bw(base_size = 12) + 
+ # scale_size(range = c(1, 10)) +
+  ylim(c(0,0.8)) + xlim(c(0,0.8))  +
+  theme(axis.line = element_line(colour = "black"),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    strip.text = element_text(size = 12)) +
+ guides(color = guide_legend(override.aes = list(linetype = 0))) +
+  geom_abline(intercept = 0, slope = 1, color = "black", linetype = "dashed") +
+  xlab("EAF multi-substrate batch") +
+  ylab("EAF single-substrate batch") +
+#  annotate("text", label="R2 = 0.30 \n F = 25.38 \n p = 5.4 e-6", x=0.6, y=0.4) +
+ #   scale_fill_manual(values=custom_colors_class) + 
+  scale_color_manual(values=custom_colors_class) + guides(color = guide_legend(override.aes = list(size = 4)))
+
+new2=ggplot(both, aes(x=as.numeric(Multi), y=as.numeric(Single),  color=Class, size=as.numeric(copy_number), linewidth=0)) +
+  geom_smooth(method = "lm", se = TRUE, col='black',fullrange=TRUE,linewidth=1) + 
+ # geom_point(size=as.numeric(both$copy_number), alpha=0.8) +
+   geom_point(alpha=0.8,show.legend=TRUE)+
+  theme_bw(base_size = 12) + 
+ # scale_size(range = c(1, 10)) +
+  ylim(c(0,0.8)) + xlim(c(0,0.8))  +
+  theme(axis.line = element_line(colour = "black"),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    strip.text = element_text(size = 12)) +
+ guides(color = guide_legend(override.aes = list(linetype = 0))) +
+  geom_abline(intercept = 0, slope = 1, color = "black", linetype = "dashed") +
+  xlab("EAF multi-substrate batch") +
+  ylab("EAF single-substrate batch") +
+#  annotate("text", label="R2 = 0.30 \n F = 25.38 \n p = 5.4 e-6", x=0.6, y=0.4) +
+ #   scale_fill_manual(values=custom_colors_class) + 
+  scale_color_manual(values=custom_colors_class) + guides(color = guide_legend(override.aes = list(size = 4)))
+new2
+ggsave(filename = 'figure3.svg', new2, dpi=300,height=3.7, width=6, units='in')
+
+
+```
+
+
+##### try figure 3 with ioc data 
+
+```{r batch-b1, message=FALSE, error=FALSE, warning=FALSE, dpi=300, fig.width=5, fig.height=5}
+
+multi=subset(incorp_w_ioc, Substrate=="Multi")
+single=subset(incorp_w_ioc, Substrate=="Single")
+
+both_i=merge(multi, single, by="OTU")
+clam1=subset(both_i, Substrate.x=="Multi")
+clam_single=subset(both_i, Substrate.x=="Single")
+
+plot(both_i$A.y, both_i$A.x, xlab= "EAF Batch Single Substrate", ylab ="EAF Batch Multi Substrate", pch=21, ylim=c(0,1), 
+     xlim=c(0,1), bg='gray',cex=(both_i$IoC_genus_mean.x))
+ll=lm(both_i$A.x~both_i$A.y)
+summary(ll)
+abline(ll)
+#text(0.2, 0.8, "R2 = 0.1065 \n F = 6.008 \n p = 0.01859")
+abline(a=0,b=1,lty=2)
+
+```
+
+
+
+
+```{r basic-line}
+
+both2=data.frame(both)
+
+plot(both2$Single, both2$Multi, ylim=c(0,0.8),xlim=c(0,0.8), pch=21, bg=as.factor(both2$Class),cex=2)
+ll=lm(as.numeric(both2$Multi)~as.numeric(both2$Single))
+abline(ll)
+abline(a=0,b=1,lty=2)
+summary(ll)
+
+
+```
 
 ```{r legend-1, message=FALSE, error=FALSE, warning=FALSE, dpi=300, fig.width=8, fig.height=5}
 
@@ -1264,12 +1773,12 @@ legend_labels <- c("1", "5", "9")
 # Define the sizes to use in the legend (e.g., representative values)
 legend_sizes <- c(0.5, 2, 4) 
 
+par(mar=c(4,4,1,1))
 # 2. Create the main plot
 plot(both$Multi, both$Single, 
      pch = 16, # Use a solid point type
      cex = size_var, # Map the 'size_var' to the point size in the plot
      col = "blue",
-     main = "Scatter plot with point size by value",
      xlab = "X values",
      ylab = "Y values")
 
@@ -1283,6 +1792,32 @@ legend("topleft", # Position of the legend
 
 ```
 
+```{r legend-2, message=FALSE, error=FALSE, warning=FALSE, dpi=300, fig.width=8, fig.height=5}
+
+size_var <- abs(as.numeric(both$copy_number))
+# Define labels for the legend
+legend_labels <- c("1", "5", "9")
+# Define the sizes to use in the legend (e.g., representative values)
+legend_sizes <- c(0.5, 2, 4) 
+
+par(mar=c(4,4,1,1))
+# 2. Create the main plot
+plot(both$Multi, both$Single, 
+     pch = 16, # Use a solid point type
+     cex = size_var, # Map the 'size_var' to the point size in the plot
+     col = "blue",
+     xlab = "X values",
+     ylab = "Y values")
+
+# 3. Add the legend using pt.cex
+legend("topleft", # Position of the legend
+       legend = legend_labels, # Text labels
+       pt.cex = legend_sizes, # Set the specific sizes for the legend points
+       pt.bg = "white",
+       pch=21,
+       title = "16S Gene Copy Number")
+
+```
 
 ```{r}
 # greater than 3
@@ -1353,4 +1888,4 @@ gplots::heatmap.2(both, Rowv=tree2,
                   colsep = c(0,1,2),
                   margins=c(5,10))
 
-```
+ n

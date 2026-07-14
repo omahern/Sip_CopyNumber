@@ -1863,29 +1863,5 @@ boxplot(as.numeric(fact)~factor(factor2))
 
 ```
 #### heatmap 
-```{r batch-c, message=FALSE, error=FALSE, warning=FALSE, dpi=300, fig.width=4, fig.height=8}
 
-both=cbind(single$A, multi$A)
-colnames(both)=c("Single","Multi")
-row.names(both)=multi$OTU
-
-otus=multi$OTU
-# subset_batch=subset_taxa(phyo_frac, Strain %in% otus)
-summary(as.factor(incorp_only$Class))
-
-# subset_batch_tree=phy_tree(subset_batch)
-subset_batch_tree=readRDS('datafiles/subset_batch_tree')
-tree2<-phylogram::as.dendrogram(subset_batch_tree)
-xxx=RColorBrewer::brewer.pal(9,"Reds")
-gplots::heatmap.2(both, Rowv=tree2,
-                  dendrogram='row', trace='none',
-                  scale = 'none',
-                  col=xxx, sepcolor = 'gray',
-                  sepwidth = c(0.005,0.05),
-                  rowsep = c(0:57),
-                  cexRow = 0.5,
-                  cexCol = 0.8,
-                  colsep = c(0,1,2),
-                  margins=c(5,10))
-
- n
+ 

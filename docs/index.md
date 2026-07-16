@@ -95,8 +95,89 @@ qiime phylogeny align-to-tree-mafft-fasttree \
 
 ## Chemostat Stability
 
+### SI Figure 2 
 
-### SI Figure 2
+
+``` r
+setwd("/Users/oliviaahern/Documents/GitHub/SIP_CopyNumber")
+
+
+{
+  
+# file contains info on MC2, Chemostat, measurements taken every 15 minutes
+data=read.csv(file="datafiles/m2_do_02_edit.csv",header=T)
+# subset to get the right time frame
+data=data.frame(data)
+data$T=as.numeric(data$T)
+read=subset(data, T <= 24)
+read=subset(read, T >= -100)
+
+time=read$T
+ph= read$pH.M2
+do=read$DO.M2..uM.
+heado=read$O2.M2....
+heado2=read$CO2.M2....
+
+  par(mar=c(4,7,1,5), mfrow=c(3,1),xpd=F)
+  plot(time, do,type='l',col='blue',xlab=" ", ylab = "", xlim=c(-100,25), xaxt='n', xaxs = 'i',cex.axis=1.4, yaxt='n', ylim=c(200,285))
+  axis(2, at=c(200,240,285),cex.axis=1.4)
+  rect(xleft=0, xright=240, ybottom=111, ytop=300, col= rgb(0.7,0.7,0.7,alpha=0.2),
+    border=NA)
+  mtext(side=2,"Dissolved Oxygen (uM)", col = 'blue', padj=-3)
+    axis(side=1, at=c(-100, -75, -50, -25, 0, 24),cex.axis=1.4,labels = FALSE)
+  par(new = TRUE)
+  plot(time, ph,col='red',type = "l", axes = FALSE, bty = "n", xlab = "", ylab = "",xlim=c(-100,25),xaxs = 'i',cex.axis=1.4, ylim=c(6.5,7.5))
+  mtext(side=4, "pH", col ='red', line=3)
+  axis(side=4, at = c(6.5, 7,7.5),cex.axis=1.4)
+  mtext("a", adj=-.12,padj=-10,side=1,srt=-90,cex=1.5,font=1)
+#  legend(25,7.4,legend=c("12C Glucose", "13C Glucose"), pch=22, pt.bg=c("white",'gray70'), bt='n')
+  
+  
+  
+  plot(time, heado,type='l',col='navy',xlab=" ", ylab = "", xlim=c(-100,25), xaxt='n', xaxs = 'i',cex.axis=1.4, yaxt='n', ylim=c(20.5,21))
+  axis(2, at=c(20.5,20.75,21),cex.axis=1.4)
+  rect(xleft=0, xright=240, ybottom=0, ytop=300, col= rgb(0.7,0.7,0.7,alpha=0.2),border=NA)
+  mtext(side=2,"Oxygen (%)", col = 'navy', padj=-3)
+    axis(side=1, at=c(-100, -75, -50, -25, 0, 24),cex.axis=1.4,labels = FALSE)
+  par(new = TRUE)
+  plot(time, heado2,col='forestgreen',type = "l", axes = FALSE, bty = "n", xlab = "", xlim=c(-100,24),ylab = "", xaxs = 'i',cex.axis=1.4, yaxt='n', ylim=c(0,0.4))
+  mtext(side=4, "CO2 (%)", col ='forestgreen', line=3)
+  axis(side=4, at = c(0,0.2,0.4),cex.axis=1.4)
+  mtext("b", adj=-.12,padj=-10,side=1,srt=-90,cex=1.5,font=1)
+ 
+# file contains info on MC2, Chemostat, data was taken daily
+read=read.csv(file="datafiles/states_gluc.csv",header=T)
+read=read[1:7,]
+read=data.frame(read)
+glucose=read$Glucose_um
+time_glucose=read$Time
+  
+  # par(mar=c(5,41.5,1,5))
+  plot(time_glucose,read$Glucose_um,type='o',ylim=c(0,12),xlab= " ",
+       ylab = " ",col='gray50',bg='gray50',pch=21,cex.axis=1,cex.lab=1,cex=1.2,lwd=1.7, xlim=c(-100,24), xaxs = 'i',
+       yaxt='n', xaxt='n',cex.axis=1.4) #xaxt=c(-144,0,48,120,240))
+  rect(xleft=0, xright=24, ybottom=0, ytop=12, col= rgb(0.7,0.7,0.7,alpha=0.2),
+    border=NA)
+  mtext(side=2, "Glucose (um)", padj=-3, col="gray50")
+  axis(side=2,at=c(0,4,8,12),cex.axis=1.4)
+  par(new = TRUE)
+  plot(time_glucose,read$Atom..13C,pch=23, lwd=1.7,
+       bg='black',type = "o", axes = FALSE, bty = "n", xlab = "", ylab = "", ylim=c(0,30), cex=1.2,xlim=c(-100,25), xaxs = 'i',cex.axis=1.4)
+  mtext(side=4, "Atomic 13C (%)", line=3)
+  axis(side=4, at=c(0, 10,20,30),cex.axis=1.4)
+    axis(side=1, at=c(-100, -75, -50, -25, 0, 24),cex.axis=1.4)
+
+  mtext(side=1, "Time (hours)", line=3)
+  #legend('topleft',legend=c("Glucose (uM)","Atomic 13C"), pch =c(21,23), pt.bg= c('gray70','black'), bty='n')
+ # mtext("c", adj=-.15,padj=-9,side=1,srt=-90,cex=1.5,font=1)
+    mtext("c", adj=-.12,padj=-10,side=1,srt=-90,cex=1.5,font=1)
+
+}
+```
+
+![](/Users/oliviaahern/Documents/GitHub/Sip_CopyNumber/docs/index_files/figure-html/si-fig-1-again-1.png)<!-- -->
+
+### SI Figure 2 (old but newer)
 
 
 ``` r

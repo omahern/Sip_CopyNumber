@@ -95,7 +95,7 @@ qiime phylogeny align-to-tree-mafft-fasttree \
 
 ## Chemostat Stability
 
-### SI Figure 2 
+### SI Figure 1 
 
 
 ``` r
@@ -396,7 +396,7 @@ lines(
      bg=subset(data, Culture== "Chemostat" & Substrate =="Multi" & Isotope=="C13")$col)
 
 ```
-### SI Figure 1 used
+### Figure 2 used
 
 
 ``` r
@@ -407,27 +407,36 @@ desired_order=c("Single", "Multi")
 qPCR_data$Substrate <- factor(qPCR_data$Substrate, levels = desired_order)
 
 
-
-ggplot(data=qPCR_data, aes(x=BD, y=R_MAX, col=Isotope))+
+library(ggpubr)
+gplot1=ggplot(data=qPCR_data, aes(x=BD, y=R_MAX, col=Isotope))+
     geom_line() +
   geom_point(aes(shape=Sequenced),size=2.5) +
-  theme_bw() +
+  theme_bw(base_size = 16) +
     facet_wrap(Culture ~ Substrate)  +
   coord_flip() +
   scale_color_manual(values=c("gray","black")) + 
 #   scale_fill_manual(values=c("white","black")) + 
   xlab("Buoyant Density (g/mL)") +
   ylab("Ratio of Maximum Quantity") +
-    scale_x_reverse(breaks=c(1.72,1.74,1.76,1.78,1.80, 1.82)) +
+    scale_x_reverse(breaks=c(1.72,1.76,1.80, 1.84)) +
   # xlim(c(1.72, 1.841)) +
+  scale_y_continuous(breaks = c(0, 0.5, 1)) +
    theme(axis.line = element_line(colour = "black"),
     panel.grid.major = element_blank(),
     strip.text = element_text(size = 14, face = "bold"),
     strip.background = element_blank(),
-    panel.grid.minor = element_blank())
+    panel.grid.minor = element_blank(),
+    legend.position='bottom') +
+  geom_point(aes(shape = Sequenced), size = 2.5) +
+scale_shape_manual(values = c("N" = 1, "Y" = 16)) 
+gplot1
 ```
 
 ![](/Users/oliviaahern/Documents/GitHub/Sip_CopyNumber/docs/index_files/figure-html/si-fig2b-1.png)<!-- -->
+
+``` r
+#ggsave('rmaxplot.svg', plot=gplot1, dpi=300, width=8,height=6)
+```
 
 
 # Import 16S Data
@@ -2888,7 +2897,7 @@ setdiff(ss1,ss4)
 
 ## figure with afe and control buoyant density 
 
-### SI Figure 3 
+### SI Figure 2
 
 
 ``` r
@@ -3041,7 +3050,7 @@ legend("topleft", # Position of the legend
 
 # 16S copy number vs EAF
 
-## Figure 1
+## Figure 3
 
 
 ``` r
@@ -3935,7 +3944,7 @@ abline(a=0,b=1,lty=2)
 ```
 
 ![](/Users/oliviaahern/Documents/GitHub/Sip_CopyNumber/docs/index_files/figure-html/batch-b-1.png)<!-- -->
-### Figure 3
+### Figure 4
 
 ### batch multi eaf vs single eaf 
 

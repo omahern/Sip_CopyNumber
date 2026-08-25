@@ -422,7 +422,7 @@ scale_shape_manual(values = c("N" = 1, "Y" = 16))
 gplot1
 
 
-#ggsave('rmaxplot.svg', plot=gplot1, dpi=300, width=8,height=6)
+#ggsave('rmaxplot.svg', plot=gplot1, dpi=300, width=8,height=4)
 ```
 
 
@@ -1712,6 +1712,18 @@ ggsave(filename = 'figure3.svg', new2, dpi=300,height=3.7, width=6, units='in')
 
 
 
+```{r}
+library(smatr)
+
+ma_fit  <- ma(as.numeric(Single) ~ as.numeric(Multi), data = both, slope.test = 1, elev.test = 0)
+sma_fit <- sma(as.numeric(Single) ~ as.numeric(Multi), data = both, slope.test = 1, elev.test = 0)
+summary(ma_fit); summary(sma_fit)
+
+t.test(shared$Single, shared$Multi, paired = TRUE)
+wilcox.test(shared$Single, shared$Multi, paired = TRUE)   # if differences are skewed
+plot(sma_fit, which = "residual")  
+```
+
 ### batch multi eaf vs single eaf 
 ```{r batch-bbc, message=FALSE, error=FALSE, warning=FALSE, dpi=300, fig.width=6, fig.height=4}
 
@@ -1851,59 +1863,6 @@ summary(ll)
 
 ```
 
-```{r legend-1, message=FALSE, error=FALSE, warning=FALSE, dpi=300, fig.width=8, fig.height=5}
-
-size_var <- abs(as.numeric(both$copy_number))
-# Define labels for the legend
-legend_labels <- c("1", "5", "9")
-# Define the sizes to use in the legend (e.g., representative values)
-legend_sizes <- c(0.5, 2, 4) 
-
-par(mar=c(4,4,1,1))
-# 2. Create the main plot
-plot(both$Multi, both$Single, 
-     pch = 16, # Use a solid point type
-     cex = size_var, # Map the 'size_var' to the point size in the plot
-     col = "blue",
-     xlab = "X values",
-     ylab = "Y values")
-
-# 3. Add the legend using pt.cex
-legend("topleft", # Position of the legend
-       legend = legend_labels, # Text labels
-       pt.cex = legend_sizes, # Set the specific sizes for the legend points
-       pt.bg = "white",
-       pch=21,
-       title = "16S Gene Copy Number")
-
-```
-
-```{r legend-2, message=FALSE, error=FALSE, warning=FALSE, dpi=300, fig.width=8, fig.height=5}
-
-size_var <- abs(as.numeric(both$copy_number))
-# Define labels for the legend
-legend_labels <- c("1", "5", "9")
-# Define the sizes to use in the legend (e.g., representative values)
-legend_sizes <- c(0.5, 2, 4) 
-
-par(mar=c(4,4,1,1))
-# 2. Create the main plot
-plot(both$Multi, both$Single, 
-     pch = 16, # Use a solid point type
-     cex = size_var, # Map the 'size_var' to the point size in the plot
-     col = "blue",
-     xlab = "X values",
-     ylab = "Y values")
-
-# 3. Add the legend using pt.cex
-legend("topleft", # Position of the legend
-       legend = legend_labels, # Text labels
-       pt.cex = legend_sizes, # Set the specific sizes for the legend points
-       pt.bg = "white",
-       pch=21,
-       title = "16S Gene Copy Number")
-
-```
 
 ```{r}
 # greater than 3

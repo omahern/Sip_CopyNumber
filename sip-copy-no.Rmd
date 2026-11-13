@@ -830,6 +830,7 @@ dim(glucose_A)
 
 ```{r copy-2, message=FALSE, error=FALSE, warning=FALSE, dpi=300, fig.width=8, fig.height=5}
 library(dplyr)
+summary(as.factor(incorp_only$treatment))
 incorp_only <- bind_rows(
   glucose_A    |> mutate(Culture = "batch",     Substrate = "single"),
   five_batch_A |> mutate(Culture = "batch",     Substrate = "multi"),

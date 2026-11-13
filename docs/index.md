@@ -1243,6 +1243,7 @@ dim(glucose_A)
 
 ``` r
 library(dplyr)
+
 incorp_only <- bind_rows(
   glucose_A    |> mutate(Culture = "batch",     Substrate = "single"),
   five_batch_A |> mutate(Culture = "batch",     Substrate = "multi"),
@@ -1253,7 +1254,15 @@ incorp_only <- bind_rows(
                 Culture     = factor(Culture,   levels = c("batch", "chemostat")),
                 Substrate   = factor(Substrate, levels = c("single", "multi"))) |>
   filter(!is.na(copy_number))
+summary(as.factor(incorp_only$treatment))
+```
 
+```
+##  batch_carbon batch_glucose  Chemo_carbon 
+##            51            63            30
+```
+
+``` r
 count(incorp_only, Culture, Substrate)   # chemostat should be here
 ```
 

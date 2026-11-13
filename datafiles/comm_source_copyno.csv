@@ -1,0 +1,7 @@
+source,B_C,isotope,isotopolog,treatment,TP,timepoint,RNA_Conc_nguL,volume_filtered,total_ng_per_mL
+MCP_9MC2,Chemostat,13C,carbon_mix,Chemo_carbon,24,24,329.083,132,43438.956
+MCP_5MC2,Chemostat,12C,carbon_mix,Chemo_carbon,0,0,194.106,130,25233.78
+CA12-24,Batch,12C,carbon_mix,batch_carbon,24,24,37.46253746,200,7492.507493
+CA13-24,Batch,13C,carbon_mix,batch_carbon,24,24,34.30924062,200,6861.848124
+GL12-24,Batch,12C,glucose,batch_glucose,24,24,22.99,200,4598
+GL13-24,Batch,13C,glucose,batch_glucose,24,24,15.52,200,3104

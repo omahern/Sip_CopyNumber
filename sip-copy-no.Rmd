@@ -1,14 +1,14 @@
 ---
-title: "Trophic Cascades - Copy Number Comparison"
+title: "Experiment 4"
 output: 
   html_document:
     keep_md: true
     toc: true
     toc_float: true
-    toc_depth: 4
+    toc_depth: 6
     code_folding: hide
-    number_sections: true
-    theme: cosmo
+    number_sections: false
+    theme: lumen
 
 knit: (function(input_file, encoding) {
   out_dir <- 'docs';
@@ -25,7 +25,6 @@ library(phyloseq)
 library(reshape2)
 library(tidyverse)
 library(vegan)
-library(HTSSIP)
 library(ape)
 library(CoDaSeq)
 library(philr)
@@ -34,11 +33,17 @@ library(cowplot)
 library(ggplot2)
 library(viridis)
 library(treeio)
-library(dplyr)
 library(microbiome)
-library(treeio)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(qSIP2)
+library(dplyr)
+library(tidyr)
+library(magrittr)
+library(qSIP2)
+library(phytools)
 ```
-
 
 
 # code for 16S sequencing data
@@ -173,220 +178,9 @@ time_glucose=read$Time
 }
 ```
 
-### SI Figure 2 (old but newer)
-
-```{r si-fig-1-good, fig.height=8,fig.width=8, message=FALSE, error=FALSE, warning=FALSE}
-setwd("/Users/oliviaahern/Documents/GitHub/SIP_CopyNumber")
-
-
-{
-  
-# file contains info on MC2, Chemostat, measurements taken every 15 minutes
-data=read.csv(file="datafiles/m2_do_02_edit.csv",header=T)
-# subset to get the right time frame
-data=data.frame(data)
-data$T=as.numeric(data$T)
-read=subset(data, T <= 24)
-read=subset(read, T >= -100)
-
-time=read$T
-ph= read$pH.M2
-do=read$DO.M2..uM.
-heado=read$O2.M2....
-heado2=read$CO2.M2....
-
-  par(mar=c(2,7,1,5), mfrow=c(3,1),xpd=F)
-  plot(time, do,type='l',col='blue',xlab=" ", ylab = "", xlim=c(-100,25), xaxt='n', xaxs = 'i',cex.axis=1.4, yaxt='n')
-  axis(2, at=c(200,210,220),cex.axis=1.4)
-  rect(xleft=0, xright=240, ybottom=111, ytop=300, col= rgb(0.7,0.7,0.7,alpha=0.2),
-    border=NA)
-  mtext(side=2,"Dissolved Oxygen (uM)", col = 'blue', padj=-3)
-    axis(side=1, at=c(-450,-144,-100, 0, 24, 48, 72, 120, 240),cex.axis=1.4,labels = FALSE)
-  par(new = TRUE)
-  plot(time, ph,col='red',type = "l", axes = FALSE, bty = "n", xlab = "", ylab = "",xlim=c(-100,25),xaxs = 'i',cex.axis=1.4)
-  mtext(side=4, "pH", col ='red', line=3)
-  axis(side=4, at = c(6.4, 6.55,6.6),cex.axis=1.4)
-  mtext("a", adj=-.12,padj=-10,side=1,srt=-90,cex=1.5,font=1)
-#  legend(25,7.4,legend=c("12C Glucose", "13C Glucose"), pch=22, pt.bg=c("white",'gray70'), bt='n')
-  
-  
-  
-  plot(time, heado,type='l',col='navy',xlab=" ", ylab = "", xlim=c(-100,25), xaxt='n', xaxs = 'i',cex.axis=1.4, yaxt='n')
-  axis(2, at=c(20.52, 20.57,20.62),cex.axis=1.4)
-  rect(xleft=0, xright=240, ybottom=0, ytop=300, col= rgb(0.7,0.7,0.7,alpha=0.2),border=NA)
-  mtext(side=2,"Oxygen (%)", col = 'navy', padj=-3)
-    axis(side=1, at=c(-450,-144,-100, 0, 24, 48, 72, 120, 240),cex.axis=1.4,labels=FALSE)
-  par(new = TRUE)
-  plot(time, heado2,col='forestgreen',type = "l", axes = FALSE, bty = "n", xlab = "", xlim=c(-100,24),ylab = "", xaxs = 'i',cex.axis=1.4, yaxt='n')
-  mtext(side=4, "CO2 (%)", col ='forestgreen', line=3)
-  axis(side=4, at = c(0.27,0.3,0.34),cex.axis=1.4)
-  mtext("b", adj=-.12,padj=-10,side=1,srt=-90,cex=1.5,font=1)
- 
-# file contains info on MC2, Chemostat, data was taken daily
-read=read.csv(file="datafiles/states_gluc.csv",header=T)
-read=read[1:7,]
-read=data.frame(read)
-glucose=read$Glucose_um
-time_glucose=read$Time
-  
-  # par(mar=c(5,41.5,1,5))
-  plot(time_glucose,read$Glucose_um,type='o',ylim=c(0,12),xlab= " ",
-       ylab = " ",col='gray50',bg='gray50',pch=21,cex.axis=1,cex.lab=1,cex=1.2,lwd=1.7, xlim=c(-100,24), xaxs = 'i',
-       yaxt='n', xaxt='n',cex.axis=1.4) #xaxt=c(-144,0,48,120,240))
-  rect(xleft=0, xright=24, ybottom=0, ytop=12, col= rgb(0.7,0.7,0.7,alpha=0.2),
-    border=NA)
-  mtext(side=2, "Glucose (um)", padj=-3, col="gray50")
-  axis(side=2,at=c(0,4,8,12),cex.axis=1.4)
-  par(new = TRUE)
-  plot(time_glucose,read$Atom..13C,pch=23, lwd=1.7,
-       bg='black',type = "o", axes = FALSE, bty = "n", xlab = "", ylab = "", ylim=c(0,30), cex=1.2,xlim=c(-100,25), xaxs = 'i',cex.axis=1.4)
-  mtext(side=4, "Atomic 13C (%)", line=3)
-  axis(side=4, at=c(0, 10,20,30),cex.axis=1.4)
-    axis(side=1, at=c(-144,-100, 0, 24),cex.axis=1.4)
-
-  mtext(side=1, "Time (hours)", line=3)
-  #legend('topleft',legend=c("Glucose (uM)","Atomic 13C"), pch =c(21,23), pt.bg= c('gray70','black'), bty='n')
- # mtext("c", adj=-.15,padj=-9,side=1,srt=-90,cex=1.5,font=1)
-    mtext("c", adj=-.12,padj=-10,side=1,srt=-90,cex=1.5,font=1)
-
-}
-```
-
-### SI Figure 2 (old)
-
-```{r si-fig-1, fig.height=8,fig.width=8, message=FALSE, error=FALSE, warning=FALSE}
-setwd("/Users/oliviaahern/Documents/GitHub/SIP_CopyNumber")
-
-
-{
-  
-# file contains info on MC2, Chemostat, measurements taken every 15 minutes
-data=read.csv(file="datafiles/m2_do_02_edit.csv",header=T)
-# subset to get the right time frame
-data=data.frame(data)
-data$T=as.numeric(data$T)
-read=subset(data, T <= 24)
-
-time=read$T
-ph= read$pH.M2
-do=read$DO.M2..uM.
-heado=read$O2.M2....
-heado2=read$CO2.M2....
-
-  par(mar=c(2,7,1,5), mfrow=c(3,1),xpd=F)
-  plot(time, do,type='l',col='blue',xlab=" ", ylab = "", xlim=c(-450,25), xaxt='n', xaxs = 'i')
-  rect(xleft=0, xright=240, ybottom=111, ytop=300, col= rgb(0.7,0.7,0.7,alpha=0.2),
-    border=NA)
-  mtext(side=2,"Dissolved Oxygen (uM)", col = 'blue', padj=-3)
-    axis(side=1, at=c(-450,-144,-100, 0, 24, 48, 72, 120, 240))
-  par(new = TRUE)
-  plot(time, ph,col='red',type = "l", axes = FALSE, bty = "n", xlab = "", ylab = "",xlim=c(-450,25),xaxs = 'i')
-  mtext(side=4, "pH", col ='red', line=3)
-  axis(side=4, at = c(6.5, 6.7, 7, 7.2, 7.4))
-  mtext("a", adj=-.10,padj=-10,side=1,srt=-90,cex=1.5,font=1)
-#  legend(25,7.4,legend=c("12C Glucose", "13C Glucose"), pch=22, pt.bg=c("white",'gray70'), bt='n')
-  
-  
-  
-  plot(time, heado,type='l',col='navy',xlab=" ", ylab = "", xlim=c(-450,25), xaxt='n', xaxs = 'i')
-  rect(xleft=0, xright=240, ybottom=0, ytop=300, col= rgb(0.7,0.7,0.7,alpha=0.2),border=NA)
-  mtext(side=2,"Oxygen (%)", col = 'navy', padj=-3)
-    axis(side=1, at=c(-450,-144,-100, 0, 24, 48, 72, 120, 240))
-  par(new = TRUE)
-  plot(time, heado2,col='forestgreen',type = "l", axes = FALSE, bty = "n", xlab = "", xlim=c(-450,24),ylab = "", xaxs = 'i')
-  mtext(side=4, "CO2 (%)", col ='forestgreen', line=3)
-  axis(side=4, at = c(0,0.1,0.2,0.3,0.4))
-  mtext("b", adj=-.1,padj=-10,side=1,srt=-90,cex=1.5,font=1)
- 
-# file contains info on MC2, Chemostat, data was taken daily
-read=read.csv(file="datafiles/states_gluc.csv",header=T)
-read=read[1:7,]
-read=data.frame(read)
-glucose=read$Glucose_um
-time_glucose=read$Time
-  
-   par(mar=c(5,41.5,1,5))
-  plot(time_glucose,read$Glucose_um,type='l',ylim=c(0,12),xlab= " ",
-       ylab = " ",col='gray50',bg='gray50',pch=21,cex.axis=1,cex.lab=1,cex=1.2,lwd=1.7, xlim=c(-144,24), xaxs = 'i',
-       yaxt='n', xaxt='n') #xaxt=c(-144,0,48,120,240))
-  rect(xleft=0, xright=24, ybottom=0, ytop=12, col= rgb(0.7,0.7,0.7,alpha=0.2),
-    border=NA)
-  mtext(side=2, "Glucose (um)", padj=-3, col="gray50")
-  axis(side=2,at=c(0,4,8,12), cex=1.3)
-  par(new = TRUE)
-  plot(time_glucose,read$Atom..13C,pch=23, lwd=1.7,
-       bg='black',type = "l", axes = FALSE, bty = "n", xlab = "", ylab = "", ylim=c(0,30), cex=1.2,xlim=c(-144,25), xaxs = 'i')
-  mtext(side=4, "Atomic 13C (%)", line=3)
-  axis(side=4, at=c(0, 10,20,30))
-    axis(side=1, at=c(-144,-100, 0, 24))
-
-  mtext(side=1, "Time (hours)", line=3)
-  #legend('topleft',legend=c("Glucose (uM)","Atomic 13C"), pch =c(21,23), pt.bg= c('gray70','black'), bty='n')
-  mtext("c", adj=-.15,padj=-9,side=1,srt=-90,cex=1.5,font=1)
-}
-```
-
 ## qPCR Buoyant Density Gradients
 
-### SI Figure 2
-old figure
-```
-
-data<-read.csv("/Users/oliviaahern/Documents/MBL_WHOI/Trophic_Cascades/Experiment3/sequencing_14Jan26/edit_qc/exp3_bd.csv",header=T,row.names=1)
-data=data.frame(data)
-par(mfrow=c(1,3),
-    mar=c(4,4,1,1))
-plot(
-     subset(data, Culture== "Batch" & Substrate =="Single" & Isotope=="C12")$R_MAX,
-     subset(data, Culture== "Batch" & Substrate =="Single" & Isotope=="C12")$BD, 
-     type='o', pch=21, col='gray70', 
-     bg=subset(data, Culture== "Batch" & Substrate =="Single" & Isotope=="C12")$col,
-     ylab="Buoyant Density (g/mL)",
-     xlab="Ratio of Maximum Quantity",
-     ylim=c(1.71,1.84),
-     xaxt='n')
-axis(1, at=c(0,0.5,1))
-lines(
-     subset(data, Culture== "Batch" & Substrate =="Single" & Isotope=="C13")$R_MAX,
-     subset(data, Culture== "Batch" & Substrate =="Single" & Isotope=="C13")$BD,
-      type='o', pch=21, col='black', 
-          bg=subset(data, Culture== "Batch" & Substrate =="Single" & Isotope=="C13")$col)
-
-
-
-plot( 
-     subset(data, Culture== "Batch" & Substrate =="Multi" & Isotope=="C12")$R_MAX,
-     subset(data, Culture== "Batch" & Substrate =="Multi" & Isotope=="C12")$BD,
-     type='o', pch=21, col='gray70', 
-bg=subset(data, Culture== "Batch" & Substrate =="Multi" & Isotope=="C12")$col,
-ylab="",
-xlab="Ratio of Maximum Quantity",
-     ylim=c(1.71,1.84),
-     xaxt='n')
-axis(1, at=c(0,0.5,1))
-lines(
-     subset(data, Culture== "Batch" & Substrate =="Multi" & Isotope=="C13")$R_MAX,
-     subset(data, Culture== "Batch" & Substrate =="Multi" & Isotope=="C13")$BD,
-      type='o', pch=21, col='black', bg=subset(data, Culture== "Batch" & Substrate =="Multi" & Isotope=="C13")$col)
-
-
-plot(
-     subset(data, Culture== "Chemostat" & Substrate =="Multi" & Isotope=="C12")$R_MAX,
-     subset(data, Culture== "Chemostat" & Substrate =="Multi" & Isotope=="C12")$BD, 
-     type='o', pch=21, col='gray70', 
-     bg=subset(data, Culture== "Chemostat" & Substrate =="Multi" & Isotope=="C12")$col,
-     ylab="",xlab="Ratio of Maximum Quantity",
-     ylim=c(1.71,1.84),
-     xaxt='n')
-axis(1, at=c(0,0.5,1))
-lines(
-     subset(data, Culture== "Chemostat" & Substrate =="Multi" & Isotope=="C13")$R_MAX,
-     subset(data, Culture== "Chemostat" & Substrate =="Multi" & Isotope=="C13")$BD,
-      type='o', pch=21, col='black',
-     bg=subset(data, Culture== "Chemostat" & Substrate =="Multi" & Isotope=="C13")$col)
-
-```
-### Figure 2 used
+### Figure 2 
 
 ```{r si-fig2b, message=FALSE, error=FALSE, warning=FALSE, dpi=300, fig.width=7, fig.height=4}
 
@@ -458,607 +252,658 @@ phyo1=subset_taxa(phyo1, !Phylum =="")
 phyo_frac=subset_samples(phyo1, Isotope !="NA")
 phyo_frac <- prune_samples(sample_sums(phyo_frac) > 0, phyo_frac)
 
-
-physeq_rep3_t=readRDS('datafiles/physeq_rep3_t')
 ```
 
 
-# Code for running qSIP
+# qSIP2
 
-## 1-normalize reads to qPCR copy number concentrations
+following this [workflow](https://jeffkimbrel.github.io/qSIP2/articles/qSIP_workflow.html#sample-data)
 
-```
-phyo_frac=subset_samples(phyo1, Isotope !="NA")
-ASVs_to_keep <- taxa_sums(phyo_frac) > 0
-phyo_frac <- prune_taxa(ASVs_to_keep, phyo_frac)
+```{r}
+# read in source data
+comm2=read.csv(file='datafiles/comm_source_copyno.csv',header=T)
+comm2=data.frame(comm2)
+source=qsip_source_data(comm2, isotope="isotope", source_mat_id = 'source', isotopolog = 'isotopolog', timepoint='timepoint')
+
+# read in sample data 
+df <- get_dataframe(source, original_headers = TRUE)
+
+#frac=read.csv('frac_qpcr.csv',header=TRUE)
+#frac$volume <- comm2$volume_filtered[match(frac$source, comm2$source)]
+#write.csv(frac,'frac_qpcr_edit.csv')
+read=read.csv(file='datafiles/sample_data_qsip2.csv',header=T)
+samples=data.frame(read)
+sample_df <- samples %>%
+  add_gradient_pos_rel_amt(source_mat_id = "source", amt = "rna_conc")
+
+sample_object<- qsip_sample_data(sample_df,
+  sample_id = "asv_id",
+  source_mat_id = "source",
+  gradient_position = "Fraction",
+  gradient_pos_density = "density_g_ml",
+  gradient_pos_amt = "rna_conc",
+  gradient_pos_rel_amt = "gradient_pos_rel_amt"
+)
+# ps_filt <- prune_taxa(taxa_sums(phyo) > 2, phyo)
+# table1=otu_table(ps_filt)
+# table=data.frame(table1)
+# write.csv(table, 'asv_tab_qsip2.csv')
+library(dplyr)
+library(qSIP2)
+asv_table=read.csv('datafiles/asv-table.csv',header=T)
+feature_object <- qsip_feature_data(asv_table,
+  feature_id = "X.OTU.ID", type='counts'
+)
 
 
-map<-read.csv("datafiles/exp3_qpcr_combined.csv",
-              header=T,row.names=1)
-physeq_rep3_t = OTU_qPCR_trans(phyo_frac, map)
-saveRDS(physeq_rep3_t, 'datafiles/physeq_rep3_t')
-```
 
-## 2-batch-single
+feature_df <- get_dataframe(feature_object)
 
-```
-batch_glu=subset_samples(physeq_rep3_t, Culture=="Batch" & Treatment=="Single")
+feature_df_filt <- feature_df %>%
+  mutate(across(-feature_id, ~ .x * (.x >= 5))) %>%
+  filter(rowSums(across(-feature_id)) > 0)
+feature_object_filt <- qsip_feature_data(feature_df_filt, type = "counts")
 
-otu=otu_table(batch_glu)
-deco=decostand(otu, 'pa')
-frac2=merge_phyloseq(deco, sample_data(batch_glu), phy_tree(batch_glu), tax_table(batch_glu))
-## Subset by tfrac1## Subset by treatment
-ps1 <- prune_samples(frac2@sam_data$Isotope == "C12", frac2)
-ps1 <- filter_taxa(ps1, function(x) sum(x) > 1, prune = TRUE)
-ps2 <- prune_samples(frac2@sam_data$Isotope == "C13", frac2)
-ps2 <- filter_taxa(ps2, function(x) sum(x) > 1, prune = TRUE)
-## Get vectors of numbered OTUs/ASVs
-treatment1 <- rownames(otu_table(ps1))
-treatment2 <- rownames(otu_table(ps2))
-## Get the intersection
-shared <- intersect(treatment1, treatment2) # 97 ASVs shared between the C12 and C13 treatment
-frac1=batch_glu
-## Subset phyloseq object to shared taxa
-ps.s <- subset(otu_table(frac1), rownames(otu_table(frac1)) %in% shared)
-merged=merge_phyloseq(ps.s, tax_table(frac1), sample_data(frac1), phy_tree(frac1)) # 53 taxa
-merged
-### run qSIP
-atomX = qSIP_atom_excess(merged, control_expr='Isotope=="C12"', treatment_rep='Isotope')
-df_atomX_boot = qSIP_bootstrap(atomX, n_boot=3,
-                               isotope="13C")
-df_atomX_boot2=na.omit(df_atomX_boot)
-CI_threshold = 0.011
-df_atomX_boot = df_atomX_boot %>%
-  mutate(Incorporator = A_CI_low > CI_threshold,
-         OTU = reorder(OTU, -A))
-n_incorp = df_atomX_boot %>%
-  filter(Incorporator == TRUE) %>%
-  nrow
-cat('Number of incorporators:', n_incorp, '\n')
-## 83 incorp
-df_dBD = delta_BD(merged, control_expr='Isotope=="C12"',
-                  n=12)
-stopifnot(nrow(df_atomX_boot) == nrow(df_dBD))
-df_j = dplyr::inner_join(df_atomX_boot, df_dBD, c('OTU'='OTU'))
-stopifnot(nrow(df_atomX_boot) == nrow(df_j))
-df_j = df_j %>%
-  dplyr::mutate(OTU = reorder(OTU, -delta_BD))
-batch_glu=df_j
-
-batch_glui=
-  subset(batch_glu, Incorporator==TRUE)
-
+qsip_object <- qsip_data(
+  source_data = source,
+  sample_data = sample_object,
+  feature_data = feature_object_filt
+)
 ```
 
+### plot the weighted average densities
+```{r}
+plot_source_wads(qsip_object, 
+                 group = "timepoint")
 
-## 3-batch-multi
+plot_source_wads(qsip_object, 
+                 group = "isotopolog")
+plot_source_wads(qsip_object, 
+                 group = "B_C")
 
-```
-batch_carb=
-  subset_samples(physeq_rep3_t, Culture=="Batch" & Treatment=="Multi")
-
-otu=otu_table(batch_carb)
-deco=decostand(otu, 'pa')
-frac2=merge_phyloseq(deco, sample_data(batch_carb), phy_tree(batch_carb), tax_table(batch_carb))
-## Subset by tfrac1## Subset by treatment
-ps1 <- prune_samples(frac2@sam_data$Isotope == "C12", frac2)
-ps1 <- filter_taxa(ps1, function(x) sum(x) > 1, prune = TRUE)
-ps2 <- prune_samples(frac2@sam_data$Isotope == "C13", frac2)
-ps2 <- filter_taxa(ps2, function(x) sum(x) > 1, prune = TRUE)
-## Get vectors of numbered OTUs/ASVs
-treatment1 <- rownames(otu_table(ps1))
-treatment2 <- rownames(otu_table(ps2))
-## Get the intersection
-shared <- intersect(treatment1, treatment2) # 64 ASVs shared between the C12 and C13 treatment
-frac1=batch_carb
-## Subset phyloseq object to shared taxa
-ps.s <- subset(otu_table(frac1), rownames(otu_table(frac1)) %in% shared)
-merged=merge_phyloseq(ps.s, tax_table(frac1), sample_data(frac1), phy_tree(frac1)) # 53 taxa
-merged
-### run qSIP
-atomX = qSIP_atom_excess(merged, control_expr='Isotope=="C12"', treatment_rep='Isotope')
-df_atomX_boot = qSIP_bootstrap(atomX, n_boot=1,isotope="13C")
-df_atomX_boot2=na.omit(df_atomX_boot)
-CI_threshold = 0.011
-df_atomX_boot = df_atomX_boot %>%
-  mutate(Incorporator = A_CI_low > CI_threshold,
-         OTU = reorder(OTU, -A))
-n_incorp = df_atomX_boot %>%
-  filter(Incorporator == TRUE) %>%
-  nrow
-cat('Number of incorporators:', n_incorp, '\n')
-## 61 incorp
-df_dBD = delta_BD(merged, control_expr='Isotope=="C12"',
-                  n=12)
-stopifnot(nrow(df_atomX_boot) == nrow(df_dBD))
-df_j = dplyr::inner_join(df_atomX_boot, df_dBD, c('OTU'='OTU'))
-stopifnot(nrow(df_atomX_boot) == nrow(df_j))
-df_j = df_j %>%
-  dplyr::mutate(OTU = reorder(OTU, -delta_BD))
-batch_carb=df_j
-
-batch_carbi=
-  subset(batch_carb, Incorporator==TRUE)
+plot_source_wads(qsip_object, 
+                 group = "treatment")
 
 ```
 
-## 4-chemostat-multi
+### plot curves
 
-```
-chemo=
-  subset_samples(physeq_rep3_t, Culture=="Chemostat" & Treatment=="Multi")
+```{r}
+plot_sample_curves(qsip_object,
+                   facet_by = "isotope",
+                   show_wad = TRUE)
 
-otu=otu_table(chemo)
-deco=decostand(otu, 'pa')
-frac2=merge_phyloseq(deco, sample_data(chemo), phy_tree(chemo), tax_table(chemo))
-## Subset by tfrac1## Subset by treatment
-ps1 <- prune_samples(frac2@sam_data$Isotope == "C12", frac2)
-ps1 <- filter_taxa(ps1, function(x) sum(x) > 1, prune = TRUE)
-ps2 <- prune_samples(frac2@sam_data$Isotope == "C13", frac2)
-ps2 <- filter_taxa(ps2, function(x) sum(x) > 1, prune = TRUE)
-## Get vectors of numbered OTUs/ASVs
-treatment1 <- rownames(otu_table(ps1))
-treatment2 <- rownames(otu_table(ps2))
-## Get the intersection
-shared <- intersect(treatment1, treatment2) # 78 ASVs shared between the C12 and C13 treatment
-frac1=chemo
-## Subset phyloseq object to shared taxa
-ps.s <- subset(otu_table(frac1), rownames(otu_table(frac1)) %in% shared)
-merged=merge_phyloseq(ps.s, tax_table(frac1), sample_data(frac1), phy_tree(frac1)) # 53 taxa
-merged
-### run qSIP
-atomX = qSIP_atom_excess(merged, control_expr='Isotope=="C12"', treatment_rep='Isotope')
-df_atomX_boot = qSIP_bootstrap(atomX, n_boot=1,isotope="13C")
-df_atomX_boot2=na.omit(df_atomX_boot)
-CI_threshold = 0.011
-df_atomX_boot = df_atomX_boot %>%
-  mutate(Incorporator = A_CI_low > CI_threshold,
-         OTU = reorder(OTU, -A))
-n_incorp = df_atomX_boot %>%
-  filter(Incorporator == TRUE) %>%
-  nrow
-cat('Number of incorporators:', n_incorp, '\n')
-## 52 incorp
-df_dBD = delta_BD(merged, control_expr='Isotope=="C12"',
-                  n=12)
-stopifnot(nrow(df_atomX_boot) == nrow(df_dBD))
-df_j = dplyr::inner_join(df_atomX_boot, df_dBD, c('OTU'='OTU'))
-stopifnot(nrow(df_atomX_boot) == nrow(df_j))
-df_j = df_j %>%
-  dplyr::mutate(OTU = reorder(OTU, -delta_BD))
-chemo_carb=df_j
 
-chemo_carbi=
-  subset(chemo_carb, Incorporator==TRUE)
+plot_sample_curves(qsip_object,
+                   facet_by = "source",
+                   show_wad = TRUE)
+
+
+plot_density_outliers(qsip_object)
 
 ```
 
 
-## 5-combine-qSIP-one-file
+
+### run analysis 
+import data, get paired tubes, and filter ASVs with less than or equal to 5 reads in any fraction
+
+```{r}
+
+feature_df <- get_dataframe(feature_object) |>
+  dplyr::filter(dplyr::if_any(-feature_id, ~ .x >= 5))
+
+qsip_obj5 <- qsip_data(
+  source_data  = source,
+  sample_data  = sample_object,
+  feature_data = qsip_feature_data(feature_df, type = "counts")
+)
+
+pairs <- get_comparison_groups(qsip_obj5,
+                               group = "treatment",
+                               isotope = "isotope",
+                               source_mat_id = "source_mat_id") |>
+  dplyr::transmute(treatment, unlabeled = `12C`, labeled = `13C`)
+
+
+```
+#### find where the mark is between the light and heavy band
+
+in order to see if there is differences in the number of 16S copies of enriched taxa, we first find out where the light and heavy deviates in our runs. This script finds where 95 % of the light RNA falls in the gradient. The output is where that 95% line is (on the figure) and the percent of RNA remaining in the gradient that is not in the 95%. 
+
+```{r}
+library(dplyr)
+library(ggplot2)
+
+# rename levels in the buoyant density files 
+lvl <- c("single-substrate batch", "multi-substrate batch", "multi-substrate chemostat")
+## read in the data for each substrate
+bd <- read.csv("datafiles/exp3_bd.csv") %>%
+  mutate(
+    isotope   = ifelse(Isotope == "C12", "12C", "13C"),
+    gradient  = paste(Culture, Substrate, Isotope, sep = "_"),
+    treatment = paste0(tolower(Substrate), "-substrate ", tolower(Culture)),
+    treatment = factor(treatment, levels = c(lvl, setdiff(unique(treatment), lvl))),
+    sequenced = Sequenced == "Y"
+  ) %>%
+  filter(!is.na(Conc), !is.na(BD)) %>%
+  arrange(gradient, BD) %>%
+  group_by(gradient) %>%
+  mutate(rel_amt   = Conc / sum(Conc),
+                ratio_max = Conc / max(Conc)) %>%
+  ungroup()
+
+count(bd, treatment, isotope, sequenced)
+
+# For each 12C treatment, find the point in which 95% of the RNA lies in the light. This is the cutoff for the heavy/light bands for which we will calculate the differences in number of 16S copies from the light to dark 
+cutoffs <- bd %>%
+  filter(isotope == "12C") %>%
+  group_by(treatment) %>%
+  mutate(lighter_cum = cumsum(rel_amt) - rel_amt) %>%
+  summarize(
+    heavy_cutoff  = (max(BD[lighter_cum < 0.95]) + min(BD[lighter_cum >= 0.95])) / 2,
+    pct_12C_heavy = 100 * sum(rel_amt[lighter_cum >= 0.95]),
+    .groups = "drop"
+  )
+
+cutoffs
+
+
+cutoffs %>%
+  dplyr::mutate(heavy_cutoff = round(heavy_cutoff, 4)) %>%
+  as.data.frame()
+
+# plotting 
+ggplot(bd, aes(x = ratio_max, y = BD, colour = isotope, group = gradient)) +
+  geom_path() +
+  geom_point(aes(shape = sequenced), size = 2, fill = "white") +
+  geom_hline(data = cutoffs, aes(yintercept = heavy_cutoff), linetype = "dashed") +
+  scale_y_reverse() +
+  scale_colour_manual(values = c("12C" = "grey60", "13C" = "black"),
+                      labels = c(expression({}^12*C), expression({}^13*C))) +
+  scale_shape_manual(values = c("FALSE" = 21, "TRUE" = 16),
+                     labels = c("FALSE" = "No", "TRUE" = "Yes")) +
+  facet_wrap(~ treatment) +
+  labs(x = "Ratio of Maximum Quantity", y = "Buoyant Density (g/mL)",
+       colour = "Isotope", shape = "Sequenced") +
+  theme_bw(base_size = 12) +
+  theme(panel.grid = element_blank(), strip.background = element_blank(),
+        legend.position = "bottom")
+
+
+
 
 ```
 
-numbs=read.csv(file='datafiles/copy_number.csv',header=T)
+#### find fractionation noise threshold
+Following the protocol from this paper [Sieradzki et al 2020](https://doi.org/10.1128/msystems.00151-20), we are going to find the variability of taxon density shifts in teh 12C. This is the tube to to tube or fractionation variability. So how much an ASV differs in their 12C distribution from one tube to another. This is measured as the median of 2 times the standard deviation of the unlabelled weighted average density (WAD). so this script:
 
-batch_glu$Culture=c(rep("Batch",98))
-batch_glu$Substrate=c(rep("Single",98))
-batch_glu$copy_number=(subset(numbs, label %in% batch_glu$OTU))$x
-batch_glu$id=c(rep("batch_glu",98))
+1. finds the top 100 ASVs in your 12C gradients
+2. finds shared ASVs in teh top 100 (in my case 87)
+3. calculates the differences in the 12C peaks of those ASVs between the different gradients 
 
-batch_carb$Culture=c(rep("Batch",63))
-batch_carb$Substrate=c(rep("Multi", 63))
-batch_carb$copy_number=(subset(numbs, label %in% batch_carb$OTU))$x
-batch_carb$id=c(rep("batch_carb",63))
+```{r}
+library(dplyr)
+library(magrittr)  
+# get the sequenced 12C fractions
+samp_wad <- get_dataframe(sample_object) %>%
+  dplyr::select(sample_id, source_mat_id, gradient_pos_density, gradient_pos_rel_amt) %>%
+  dplyr::filter(source_mat_id %in% pairs$unlabeled)
 
-chemo_carb$Culture=c(rep("Chemostat",77))
-chemo_carb$Substrate=c(rep("Multi",77))
-chemo_carb$copy_number=(subset(numbs, label %in% chemo_carb$OTU))$x
-chemo_carb$id=c(rep("chemo_carb",77))
+# get the ASVs and put them in long formate
+feat_long <- feature_df %>%
+  tidyr::pivot_longer(-feature_id, names_to = "sample_id", values_to = "count") %>%
+  dplyr::inner_join(samp_wad, by = "sample_id") %>%
+  dplyr::group_by(sample_id) %>%
+  dplyr::mutate(tube_rel = if (sum(count) > 0) count / sum(count) * gradient_pos_rel_amt else 0) %>%
+  dplyr::ungroup()
+# only look at the batch tubes
+feat_long=subset(feat_long, source_mat_id !="MCP_5MC2" )
+
+# find the top 100
+top100 <- feat_long %>%
+  dplyr::group_by(feature_id) %>%
+  dplyr::summarize(total = sum(count), .groups = "drop") %>%
+  dplyr::slice_max(total, n = 100) %>%
+  dplyr::pull(feature_id)
+# find the shared ASVs in the top 100 (87) and then calculate 2 times the standard deviation of the WAD 
+sd_per_asv <- feat_long %>%
+  dplyr::filter(feature_id %in% top100) %>%
+  dplyr::group_by(feature_id, source_mat_id) %>%
+  dplyr::summarize(WAD = sum(gradient_pos_density * tube_rel) / sum(tube_rel),
+                   .groups = "drop") %>% 
+  dplyr::filter(is.finite(WAD)) %>%
+  dplyr::group_by(feature_id) %>%
+  dplyr::filter(dplyr::n() >= 2) %>%
+  dplyr::summarize(sd2 = 2 * sd(WAD), .groups = "drop")
+
+```
 
 
-s1=bind_rows(batch_glu, batch_carb)
-all=bind_rows(s1, chemo_carb)
-taxa=tax_table(phyo1)
-colnames(taxa)
-colnames(taxa)=c("Domain", "Phylum", "Class", "Order", "Family", "Genus", "Species", "OTU")
-qsip_data=merge(all, taxa, by="OTU")
+```{r}
+## lets double check this worked
+sd_sort <- sd_per_asv %>%
+    arrange(sd2)
 
-write.csv(qsip_data, 'datafiles/qsip_data_exp3.csv')
+example_asv1=sd_sort$feature_id[1]
+example_asv2=sd_sort$feature_id[87]
+
+ex_dist <- feat_long %>%
+  filter(feature_id == example_asv1)
+ex_wad <- ex_dist |>
+  dplyr::group_by(source_mat_id) |>
+  dplyr::summarize(WAD = sum(gradient_pos_density * tube_rel) / sum(tube_rel),
+                   .groups = "drop")
+ggplot(ex_dist, aes(x = gradient_pos_density, y = tube_rel)) +
+  geom_line() +
+  geom_point() +
+  geom_vline(data = ex_wad, aes(xintercept = WAD), linetype = "dashed", colour = "red") +
+  facet_wrap(~ source_mat_id, ncol = 1, scales = "free_y") +
+  labs(title = "Small standard deviation in WAD, keep",
+       x = "Buoyant density (g/mL)",
+       y = "Relative abundance in tube") +
+  theme_bw(base_size = 12)
+
+
+ex_dist <- feat_long %>%
+  filter(feature_id == example_asv2)
+ex_wad <- ex_dist |>
+  dplyr::group_by(source_mat_id) |>
+  dplyr::summarize(WAD = sum(gradient_pos_density * tube_rel) / sum(tube_rel),
+                   .groups = "drop")
+ggplot(ex_dist, aes(x = gradient_pos_density, y = tube_rel)) +
+  geom_line() +
+  geom_point() +
+  geom_vline(data = ex_wad, aes(xintercept = WAD), linetype = "dashed", colour = "red") +
+  facet_wrap(~ source_mat_id, ncol = 1, scales = "free_y") +
+  labs(title = "Large standard deviation, will be cut",
+       x = "Buoyant density (g/mL)",
+       y = "Relative abundance in tube") +
+  theme_bw(base_size = 12)
+
+shift_threshold <- median(sd_per_asv$sd2, na.rm = TRUE)
+
+shift_threshold    # g/mL
+nrow(sd_per_asv)   # ASVs contributing to the threshold
+
+```
+
+#### run qSIP2
+must be in at least 3 fractions from labelled and unlaebelled 
+```{r, eval=TRUE}
+batch_unlab <- c("CA12-24", "GL12-24")
+
+unlab_list <- lapply(pairs$treatment, function(trt) {
+  if (grepl("^batch", trt)) batch_unlab else pairs$unlabeled[pairs$treatment == trt]
+})
+
+qsip_by_trt <- lapply(seq_len(nrow(pairs)), function(i) {
+  run_feature_filter(qsip_obj5,
+    unlabeled_source_mat_ids = unlab_list[[i]],
+    labeled_source_mat_ids   = pairs$labeled[i],
+    min_unlabeled_sources    = 1,
+    min_labeled_sources      = 1,
+    min_unlabeled_fractions  = 3,
+    min_labeled_fractions    = 3,
+    group = pairs$treatment[i],
+    quiet = TRUE
+  ) |>
+    run_resampling(resamples = 1000, with_seed = 17, allow_failures = TRUE,
+                   progress = FALSE, quiet = TRUE) %>%
+    run_EAF_calculations()
+})
+names(qsip_by_trt) <- pairs$treatment
+
+# get EAF
+eaf <- summarize_EAF_values(qsip_by_trt, confidence = 0.95) %>%
+  dplyr::select(treatment = group, feature_id, observed_EAF, lower, upper, pval,
+                unlabeled_sources)
+eaf
+range(eaf$lower)
+range(eaf$upper)
+
+eaf_df <- summarize_EAF_values(qsip_by_trt, confidence = 0.95) %>%
+  dplyr::select(treatment = group, feature_id, observed_EAF, lower, upper, pval,
+                unlabeled_sources)
+```
+##### calculate the number of 16S copies enriched per treatmetn  
+```{r}
+std_length_nt <- 465   # length (nt) of the RNA standard used for the qPCR curve
+frac_vol_ml   <- 1     # fraction volume in mL (1 = copies per mL)
+avogadro      <- 6.02214076e23
+
+## calculate the shift between heavy and light for each ASV
+shift_df <- lapply(names(qsip_by_trt), function(trt) {
+  get_EAF_data(qsip_by_trt[[trt]]) %>%
+    dplyr::filter(observed == TRUE) %>%
+    dplyr::transmute(treatment = trt, feature_id,
+                     W_unlab = W_unlab_mean, W_lab = W_lab_mean,
+                     shift = W_lab_mean - W_unlab_mean)
+}) %>%
+  dplyr::bind_rows()
+
+# calculate the number of 16S copies per fraction 
+bd <- read.csv("datafiles/exp3_bd.csv") %>%
+  dplyr::mutate(copies = Conc * 1e-9 * avogadro / (std_length_nt * 320.5 + 159) * frac_vol_ml) %>%
+  dplyr::select(seq_id, copies)
+# get sample ids
+samp <- get_dataframe(sample_object) %>%
+  dplyr::select(sample_id, source_mat_id) %>%
+  dplyr::inner_join(dplyr::select(pairs, treatment, source_mat_id = labeled),
+                    by = "source_mat_id")
+
+
+
+# 1) calcualtes number of asvs copies per fraciton, 
+# 2) sum those to get total_copies, 
+# 3) get eaf estimates and confidence intervals (upper and lower) and WAD shift
+# 4) sees if an ASV is enriched if it is greater than the tube variability (0.002877644 g/mL)
+asv_shift <- feature_df %>%
+  tidyr::pivot_longer(-feature_id, names_to = "sample_id", values_to = "count") %>%
+  dplyr::inner_join(samp, by = "sample_id") %>%
+  dplyr::inner_join(bd, by = c("sample_id" = "seq_id")) %>%
+  dplyr::group_by(sample_id) %>%
+  dplyr::mutate(asv_copies = if (sum(count) > 0) count / sum(count) * copies else 0) %>%
+  dplyr::ungroup() %>%
+  dplyr::group_by(treatment, feature_id) %>%
+  dplyr::summarize(total_copies = sum(asv_copies), .groups = "drop") %>%
+  dplyr::inner_join(eaf_df,   by = c("treatment", "feature_id")) %>%
+  dplyr::inner_join(shift_df, by = c("treatment", "feature_id")) %>%
+  dplyr::mutate(
+    enriched        = shift > shift_threshold,
+    enriched_copies = ifelse(enriched, total_copies, 0)
+  ) %>%
+  dplyr::select(treatment, feature_id, W_unlab, W_lab, shift, observed_EAF,
+                lower, upper, pval, enriched, total_copies, enriched_copies) %>%
+  dplyr::arrange(treatment, dplyr::desc(shift))
+
+asv_shift
+
+
+asv_shift %>%
+  dplyr::group_by(treatment) %>%
+  dplyr::summarize(
+    n_asvs              = dplyr::n(),
+    n_enriched          = sum(enriched),
+    enriched_copies     = sum(enriched_copies),
+    total_copies        = sum(total_copies),
+    pct_enriched_copies = 100 * enriched_copies / total_copies,
+    .groups = "drop"
+  )
+
+
+
+```
+note taxa are considered enriched if the shift is greater than the variation between tubes (shift > shift_threshold)
+
+
+This shows the cutoff due ot variation that were killed
+
+```{r}
+eaf_per_shift=subset(asv_shift, enriched=="TRUE")
+eaf_per_shift %>%
+  dplyr::group_by(treatment) %>%
+   dplyr::summarize(min_EAF = min(observed_EAF))
+
+
+```
+
+```{r, eval=TRUE}
+
+asv_shift %>%
+  dplyr::group_by(treatment) %>%
+  dplyr::arrange(shift, .by_group = TRUE) %>%
+  dplyr::mutate(rank = dplyr::row_number()) %>%
+  dplyr::ungroup() %>%
+  ggplot(aes(x = rank, y = shift, colour = enriched)) +
+  geom_point(size = 1.5) +
+  geom_hline(yintercept = shift_threshold, linetype = "dashed") +
+  scale_colour_manual(values = c("FALSE" = "grey60", "TRUE" = "black"),
+                      labels = c("FALSE" = "No", "TRUE" = "Yes")) +
+  facet_wrap(~ treatment, scales = "free_x") +
+  labs(x = "ASV rank (lowest to highest shift)", y = "Density shift (g/mL)",
+       colour = "Enriched") +
+  theme_bw() +
+  theme(panel.grid = element_blank(),
+        legend.position = "bottom")
+
+
+asv_shift %>%
+  dplyr::group_by(treatment) %>%
+  dplyr::summarize(n_called_by_qSIP   = dplyr::n(),
+                   n_WAD_too_small = sum(!enriched),
+                   n_kept    = sum(enriched),
+                   pct_kept    = n_kept/n_called_by_qSIP)
 
 ```
 
 ```{r}
-#saveRDS(qsip_data, 'datafiles/qsip_data')
-qsip_data=readRDS('datafiles/qsip_data')
-```
+pair_12C <- data.frame(treatment     = c("batch_carbon", "batch_glucose", "Chemo_carbon"),
+                       source_mat_id = c("CA12-24", "GL12-24", "MCP_5MC2"))
 
-# qSIP basic stats
+copies_12C <- feature_df %>%
+  tidyr::pivot_longer(-feature_id, names_to = "sample_id", values_to = "count") %>%
+  dplyr::inner_join(get_dataframe(sample_object) %>%
+                      dplyr::select(sample_id, source_mat_id) %>%
+                      dplyr::inner_join(pair_12C, by = "source_mat_id"),
+                    by = "sample_id") %>%
+  dplyr::inner_join(bd, by = c("sample_id" = "seq_id")) %>%
+  dplyr::group_by(sample_id) %>%
+  dplyr::mutate(asv_copies = count / sum(count) * copies) %>%
+  dplyr::group_by(treatment, feature_id) %>%
+  dplyr::summarize(copies_12C = sum(asv_copies), .groups = "drop")
 
-## 16S rRNA copy number among treatments
-looking at all ASVs that were in the buoyant density gradients (must be present at in at least 2 fractions of both enriched and unenriched) and just the incorporators 
+copies_bar <- asv_shift %>%
+  dplyr::left_join(copies_12C, by = c("treatment", "feature_id")) %>%
+  tidyr::pivot_longer(c(copies_12C, total_copies), names_to = "isotope", values_to = "copies") %>%
+  dplyr::mutate(isotope = ifelse(isotope == "copies_12C", "12C", "13C")) %>%
+  dplyr::group_by(treatment, isotope, enriched) %>%
+  dplyr::summarize(copies = sum(copies, na.rm = TRUE), .groups = "drop") %>%
+  dplyr::group_by(treatment, isotope) %>%
+  dplyr::mutate(pct = 100 * copies / sum(copies)) %>%
+  dplyr::ungroup() %>%
+  dplyr::mutate(status = ifelse(enriched, "Enriched", "Not enriched"))
 
-```{r qSIP-1, message=FALSE, error=FALSE, warning=FALSE}
-
-par(mfrow=c(2,2))
-
-boxplot(qsip_data$copy_number~qsip_data$id, xlab=" ", ylab="16S rRNA copy number", main = "16S copy number vs. treatments, all ASVs")
-a=aov(qsip_data$copy_number~qsip_data$id)
-summary(a)
-tuk=TukeyHSD(a)
-plot(tuk,las=2)
-
-incorp_only = subset(qsip_data, Incorporator == "TRUE")
-
-boxplot(incorp_only$copy_number~incorp_only$id, xlab=" ", ylab="16S rRNA copy number", main = "16S copy number vs. treatments, only incorp")
-a=aov(incorp_only$copy_number~incorp_only$id)
-summary(a)
-tuk=TukeyHSD(a)
-plot(tuk,las=2)
-
-mean_by_group <- aggregate(incorp_only$copy_number, by=list(incorp_only$id), FUN=mean)
-sd_by_group <- aggregate(incorp_only$copy_number, by=list(incorp_only$id), FUN=sd)
+ggplot(copies_bar, aes(x = isotope, y = pct, fill = status)) +
+  geom_col(colour = "black") +
+  scale_fill_manual(values = c("Enriched" = "#2E8B57", "Not enriched" = "#C0392B")) +
+  facet_wrap(~ treatment) +
+  labs(x = NULL, y = "% of 16S rRNA copies", fill = NULL) +
+  theme_bw(base_size = 12) +
+  theme(legend.position = "bottom")
 
 
-```
-
-
-## EAF among treatments 
-looking at all ASVs that were in the buoyant density gradients (must be present at in at least 2 fractions of both enriched and unenriched) and just the incorporators 
-
-```{r qSIP-2, message=FALSE, error=FALSE, warning=FALSE}
-
-par(mfrow=c(2,2))
-boxplot(qsip_data$A~qsip_data$id, main="EAF among groups, all ASVs")
-a=aov(qsip_data$A~qsip_data$id)
-summary(a)
-tuk=TukeyHSD(a)
-plot(tuk,las=2)
-
-incorp_only = subset(qsip_data, Incorporator == "TRUE")
-
-boxplot(incorp_only$A~incorp_only$id, main="EAF among groups, only incorp")
-a=aov(incorp_only$A~incorp_only$id)
-summary(a)
-tuk=TukeyHSD(a)
-plot(tuk,las=2)
-
-ag <- aggregate(A ~ id, incorp_only, function(x) c(mean = mean(x), sd = sd(x)))
-
-mean_by_group <- aggregate(incorp_only$A, by=list(incorp_only$id), FUN=mean)
-sd_by_group <- aggregate(incorp_only$A, by=list(incorp_only$id), FUN=sd)
 
 ```
+##### remove outlier ASVs (12C vs 13C abundance mismatch)
 
+Because each treatment has a single 12C and a single 13C gradient started from the same inoculum, an ASV should make up a similar share of total 16S rRNA copies in both tubes. ASVs whose share differs more than 10-fold between the paired gradients are usually present at trace levels in one tube, so their WAD rests on a few reads and the density shift is unreliable. We excluded these ASVs. 
 
-## EAF and copy number among bacterial classes
+```{r}
+# ---- tube totals ----
+tot_12C <- copies_12C %>%
+  dplyr::group_by(treatment) %>%
+  dplyr::summarize(tot_12C = sum(copies_12C))
 
-```{r qSIP-3, message=FALSE, error=FALSE, warning=FALSE, dpi=300, fig.width=12, fig.height=10}
+tot_13C <- samp %>%
+  dplyr::inner_join(bd, by = c("sample_id" = "seq_id")) %>%
+  dplyr::group_by(treatment) %>%
+  dplyr::summarize(tot_13C = sum(copies))
 
-par(mfrow=c(2,2),mar=c(8,5,5,1))
+# ---- remove >10-fold mismatches ----
+check <- asv_shift %>%
+  dplyr::left_join(copies_12C, by = c("treatment", "feature_id")) %>%
+  dplyr::left_join(tot_12C, by = "treatment") %>%
+  dplyr::left_join(tot_13C, by = "treatment") %>%
+  dplyr::mutate(fold_diff = pmax(total_copies / tot_13C, copies_12C / tot_12C) /
+                            pmin(total_copies / tot_13C, copies_12C / tot_12C))
 
-incorp_only = subset(qsip_data, Incorporator == "TRUE")
+sum(check$fold_diff > 10)   # ASVs excluded
 
-boxplot(incorp_only$A~incorp_only$Class,las=2)
-a=aov(incorp_only$A~incorp_only$Class)
-summary(a)
-tuk=TukeyHSD(a)
-plot(tuk,las=2)
+asv_final <- check %>%
+  dplyr::filter(fold_diff <= 10)
 
-# bacteroidia had highest copy number 
-gamma = subset(incorp_only, Class == "Bacteroidia")
-mean(gamma$A)
-sd(gamma$A)
-range(gamma$A)
+# ---- final summary per treatment ----
+final_summary <- asv_final |>
+  dplyr::group_by(treatment) |>
+  dplyr::summarize(
+    n_asvs              = dplyr::n(),
+    n_enriched          = sum(enriched),
+    pct_enriched_copies = 100 * sum(enriched_copies) / sum(total_copies),
+    .groups = "drop"
+  )
 
-boxplot(incorp_only$copy_number~incorp_only$Class,las=2)
-a=aov(incorp_only$copy_number~incorp_only$Class)
-summary(a)
-tuk=TukeyHSD(a)
-plot(tuk,las=2)
+print(final_summary)
 
+asv_results <- asv_final |>
+  dplyr::select(treatment, feature_id, shift, observed_EAF, lower, upper, pval,
+                enriched, total_copies, enriched_copies) |>
+  dplyr::arrange(treatment, dplyr::desc(observed_EAF))
 
-range(incorp_only$copy_number)
-# gamma had the most 
-gamma = subset(incorp_only, Class == "Gammaproteobacteria")
-mean(gamma$copy_number)
-sd(gamma$copy_number)
+asv_enriched <- asv_results |>
+  dplyr::filter(enriched)
 
+asv_final_res=asv_enriched
 ```
 
 
 
-## Comparison of incorporators 12C buoyant density 
+## EAF vs 16S copy number
+```{r}
+# filter ASV EAF results
+asv_results_filt=subset(asv_enriched, enriched=="TRUE")
+asv_results_filt$Strain=asv_results_filt$feature_id
+summary(as.factor(asv_results_filt$treatment))
+taxa=tax_table(phyo1)
+asv_results_filt_tax=merge(asv_results_filt, taxa, by="Strain")
 
-```{r qSIP-4, message=FALSE, error=FALSE, warning=FALSE}
+# get copy nmber info
+numbs=read.csv(file='datafiles/copy_number.csv',
+               header=T)
+number=data.frame(cbind(numbs$label, numbs$x))
+colnames(number)=c("Strain", "Copy_Number")
 
-par(mfrow=c(1,2))
-boxplot(incorp_only$Wlight~incorp_only$id)
-a=aov(incorp_only$Wlight~incorp_only$id)
-summary(a)
-tuk=TukeyHSD(a)
-plot(tuk,las=2)
-tuk
-ag <- aggregate(Wlight ~ id, incorp_only, function(x) c(mean = mean(x), sd = sd(x)))
-ag
+# glucose A values
+glucose_phyo=subset_samples(phyo1, Treatment=="Single" & Culture =="Batch")
+glucose_phyo <- filter_taxa(glucose_phyo, function(x) any(x > 0), prune = TRUE)
+tax_glucose=tax_table(glucose_phyo)
+glucose_numb=merge(tax_glucose, number, by='Strain')
+asv_results_filt_glu=subset(asv_results_filt, treatment=="batch_glucose")
+glucose_A=merge(asv_results_filt_glu, glucose_numb, by="Strain")
+dim(glucose_A)
 
+head(asv_enriched)
+dim(subset(asv_enriched, treatment=="batch_glucose"))
+
+# five carbon_batch
+five_batch_phyo=subset_samples(phyo1, Treatment=="Five-Carbon" & Culture=="Batch")
+five_batch_phyo <- filter_taxa(five_batch_phyo, function(x) any(x > 0), prune = TRUE)
+five_batch_tax=tax_table(five_batch_phyo)
+five_batch_numb=merge(five_batch_tax, number, by="Strain")
+asv_results_filt_batch_carb=subset(asv_results_filt, treatment=="batch_carbon")
+five_batch_A=merge(asv_results_filt_batch_carb, five_batch_numb, by="Strain")
+dim(five_batch_A)
+
+
+# five carbon_chemo
+five_chemo_phyo=subset_samples(phyo1, Treatment=="Five-Carbon" & Culture=="Chemostat")
+five_chemo_phyo <- filter_taxa(five_chemo_phyo, function(x) any(x > 0), prune = TRUE)
+five_chemo_tax=tax_table(five_chemo_phyo)
+five_chemo_numb=merge(five_chemo_tax, number, by="Strain")
+asv_results_filt_chemo_carb=subset(asv_results_filt, treatment=="Chemo_carbon")
+five_chemo_A=merge(asv_results_filt_chemo_carb, five_chemo_numb, by="Strain")
+
+dim(five_chemo_A)
+dim(five_batch_A)
+dim(glucose_A)
+
+# note that these ASVs were dropped because of theri taxonomy:
+# dropped <- c("33036d95db3cb15dfa681dbd231b7213", "4d699b85fb27ee71fc6383ed36e50120",
+          #   "a9360c0a1300c954aefbdaeb9109d345", #"5afc2a9c279a0e72cb96fb88e116f994",
+  #           "687e1d94d2bfc46843a21e7706df067e", #"088bc2e5228101932e94ad30c2f7b3ec",
+      #       "cbc0cbfe40912ff3227e87e167bb6113")
+# they were either cyanobacteria or mitochondria
 ```
 
-## GC vs. EAF - incorporators all treatments 
-```{r gc-1, message=FALSE, error=FALSE, warning=FALSE}
-
-incorp_only = subset(qsip_data, Incorporator == "TRUE")
-
-plot(incorp_only$Wlight, incorp_only$A)
-
-ll=lm(incorp_only$A~incorp_only$Wlight)
-summary(ll)
-abline(ll)
-
-
-
-
-
-plot(incorp_only$Wlight, incorp_only$copy_number)
-
-ll=lm(incorp_only$copy_number~incorp_only$Wlight)
-summary(ll)
-abline(ll)
-```
-
-
-## GC vs EAF - incorporators grouped by treatments 
-```{r gc-2, message=FALSE, error=FALSE, warning=FALSE}
-incorp_only = subset(qsip_data, Incorporator == "TRUE")
-
-
-plot(incorp_only$Wlight, incorp_only$A)
-
-par(mfrow=c(1,3),mar=c(5,5,1,1))
-glu_only=subset(incorp_only, id=="batch_glu")
-plot(glu_only$A, glu_only$Wlight, pch=21, cex=1.22, bg='black', xlab="AFE", ylab="Gene Copy Number")
-ll=lm(glu_only$Wlight~glu_only$A)
-summary(ll)
-abline(ll)
-
-
-batch_carbon=subset(incorp_only, id=="batch_carb")
-plot(batch_carbon$A, batch_carbon$Wlight, pch=21, cex=1.22, bg='black', xlab="AFE", ylab="Gene Copy Number")
-ll=lm(batch_carbon$Wlight~batch_carbon$A)
-summary(ll)
-abline(ll)
-
-
-chemo_carbon=subset(incorp_only, id=="chemo_carb")
-plot(chemo_carbon$A, chemo_carbon$Wlight, pch=21, cex=1.22, bg='black', xlab="AFE", ylab="Gene Copy Number")
-ll=lm(chemo_carbon$Wlight~chemo_carbon$A)
-summary(ll)
-abline(ll)
-
-```
-
-
-## IOC
-```{r ioc_1, message=FALSE, error=FALSE, warning=FALSE}
-qsip_data
-ioc_data=read.csv("datafiles/gtdb_r220_ioc.csv",header=T)
-ioc_data=read.csv("datafiles/gtdb_r220_ioc_25june26.csv",header=T)
-
-qsip_data_ioc=merge(qsip_data, ioc_data, by='OTU')
-
-
-qsip_data_ioc_aa = subset(qsip_data_ioc, Incorporator == "TRUE")
-plot(qsip_data_ioc_aa$Wlight, qsip_data_ioc_aa$IoC_genus_mean)
-
-boxplot(qsip_data_ioc$IoC_genus_mean~qsip_data_ioc$id)
-
-par(mfrow=c(1,2))
-boxplot(qsip_data_ioc$IoC_genus_mean~qsip_data_ioc$id)
-a=aov(qsip_data_ioc$IoC_genus_mean~qsip_data_ioc$id)
-summary(a)
-tuk=TukeyHSD(a)
-plot(tuk,las=2)
-tuk
-ag <- aggregate(IoC_genus_mean ~ id, qsip_data_ioc_aa, function(x) c(mean = mean(x), sd = sd(x)))
-ag
-
-
-ss=subset(incorp_only, id=='chemo_carb')
-ss1=ss$OTU
-
-incorp_w_ioc=readRDS('datafiles/incorp_w_ioc')
-
-ss3=subset(incorp_w_ioc, id=="chemo_carb")
-ss4=ss3$OTU
-
-setdiff(ss1,ss4)
-
-```
-
-
-## figure with afe and control buoyant density 
-
-### SI Figure 2
-
-```{r si-fig-3, message=FALSE, error=FALSE, warning=FALSE, dpi=300, fig.width=7, fig.height=4}
-
-#dim(incorp_only)
-#incorp_only$Class
-summary(as.factor(incorp_only$Class))
-
-custom_colors_class=c("Actinobacteria"="#ff6b92",
-  "Alphaproteobacteria"="#aa003a",
-  "Bacteroidia"="#792e00",
-  "Cyanobacteriia"="#ffae55",
-  "Deltaproteobacteria"="#63af33",
-  "Gammaproteobacteria" = "#3eeb93",
-  "OM190" = "#0060ad",
-  "Planctomycetes"= "#9281fd",
-  "Rhodothermia" = "#3f0e50", 
-  "vadinHA49" = "#e747a0",
-  "Verrucomicrobiae" = "#ff6eb1")
-
-custom_colors_class=c("Acidimicrobiia" ="#f21277",
-                      "Actinobacteria" ="#a02016",
-                      "Alphaproteobacteria" ="#ffb659",
-                      "Bacteroidia" = "#48591c",
-                      "Chloroflexia"='gray',
-                      "Deltaproteobacteria" ="#01a34a",
-                      "Gammaproteobacteria" ="#7bc6ff",
-                      "OM190" = 'gray',
-                      "Planctomycetacia" ="#00539e",
-                      "Rhodothermia"='gray',
-                      "Thermoleophilia" = 'gray',
-                      "vadinHA49" = "gray", 
-                      "Verrucomicrobiae" ="#6868f2")
-incorp_only$Class_ag=incorp_only$Class
-incorp_only$Class_ag=as.factor(incorp_only$Class_ag)
-levels(incorp_only$Class_ag)=c("Acidimicrobiia","Actinobacteria","Alphaproteobacteria","Bacteroidia","Other","Deltaproteobacteria","Gammaproteobacteria","Other","Planctomycetacia", "Other", "Other", "Other","Verrucomicrobiae")
-
-custom_colors_class=c("Acidimicrobiia" ="#f21277",
-                      "Actinobacteria" ="#a02016",
-                      "Alphaproteobacteria" ="#ffb659",
-                      "Bacteroidia" = "#48591c",
-                                            "Other" = 'gray',
-
-                      "Deltaproteobacteria" ="#01a34a",
-                      "Gammaproteobacteria" ="#7bc6ff",
-                      "Planctomycetacia" ="#00539e",
-                      "Verrucomicrobiae" ="#6868f2")
-
-desired_order=c("Single", "Multi")
-incorp_only$Substrate <- factor(incorp_only$Substrate, levels = desired_order)
-
-
-ggplot(incorp_only, aes(x=A, y=Wlight, fill=Class_ag, color=Class_ag)) + 
-   geom_point(size=as.numeric(incorp_only$copy_number)) +
-  #geom_point(size=3) +
-  facet_wrap(Culture ~ Substrate) +
-  theme_bw() +
-  theme(legend.position='right') +
-  scale_fill_manual(values=custom_colors_class) + 
-  scale_color_manual(values=custom_colors_class) +
-      scale_y_reverse() +
-  xlab("EAF") +
-  ylab(expression(" "*C^12*" Control Buoyant Density (g/mL)")) + 
-  theme(axis.line = element_line(colour = "black"),
-    panel.grid.major = element_blank(),
-    strip.text = element_text(size = 12),
-    strip.background = element_blank(),
-    panel.grid.minor = element_blank())
-
-
-# new
-ggplot(incorp_only, aes(x=A, y=Wlight,  fill=Class_ag, color= Class_ag,size=copy_number, linewidth=0)) +
-#  geom_smooth(method = "lm", se = TRUE, col='black',fullrange=TRUE,linewidth=1) + 
- # geom_point(size=as.numeric(both$copy_number), alpha=0.8) +
-   geom_point(alpha=0.8,show.legend=TRUE)+
-    theme_bw(base_size = 12) + 
-
-  facet_wrap(Culture ~ Substrate) +
-  theme_bw() +
-  theme(legend.position='right') +
-  scale_fill_manual(values=custom_colors_class) + 
-  scale_color_manual(values=custom_colors_class) +
-      scale_y_reverse() +
-  xlab("EAF") +
-  ylab(expression(" "*C^12*" Control Buoyant Density (g/mL)")) + 
-  theme(axis.line = element_line(colour = "black"),
-    panel.grid.major = element_blank(),
-    strip.text = element_text(size = 12),
-    strip.background = element_blank(),
-    panel.grid.minor = element_blank()) + scale_color_manual(values=custom_colors_class) + guides(color = guide_legend(override.aes = list(size = 4)))
-
-
-```
-
-
-
-
-```{r legend-1c, message=FALSE, error=FALSE, warning=FALSE, dpi=300, fig.width=8, fig.height=5}
-batch_incorp=readRDS('datafiles/batch_incorp')
-
-
-multi=subset(batch_incorp, Substrate=="Multi")
-single=subset(batch_incorp, Substrate=="Single")
-both=cbind(single$A, multi$A, multi$Class, multi$copy_number)
-colnames(both)=c("Single","Multi", "Class", "copy_number")
-row.names(both)=multi$OTU
-both=data.frame(both)
-
-size_var <- abs(as.numeric(both$copy_number))
-# Define labels for the legend
-legend_labels <- c("1", "5", "9")
-# Define the sizes to use in the legend (e.g., representative values)
-legend_sizes <- c(0.5, 2, 4) 
-
-# 2. Create the main plot
-plot(subset(incorp_only, id=="chemo_carb")$Wlight, subset(incorp_only, id=="chemo_carb")$A, 
-     pch = 16, # Use a solid point type
-     cex = size_var, # Map the 'size_var' to the point size in the plot
-     col = "blue",
-     main = "Scatter plot with point size by value",
-     xlab = "X values",
-     ylab = "Y values")
-
-# 3. Add the legend using pt.cex
-legend("topleft", # Position of the legend
-       legend = legend_labels, # Text labels
-       pt.cex = legend_sizes, # Set the specific sizes for the legend points
-       pt.bg = "white",
-       pch=21,
-       title = "16S GCN")
-
-```
-
-# 16S copy number vs EAF
 
 ## Figure 3
 
-```{r copy-2ag2, message=FALSE, error=FALSE, warning=FALSE, dpi=300, fig.width=8, fig.height=5}
+```{r copy-2, message=FALSE, error=FALSE, warning=FALSE, dpi=300, fig.width=8, fig.height=5}
+library(dplyr)
+incorp_only <- bind_rows(
+  glucose_A    |> mutate(Culture = "batch",     Substrate = "single"),
+  five_batch_A |> mutate(Culture = "batch",     Substrate = "multi"),
+  five_chemo_A |> mutate(Culture = "chemostat", Substrate = "multi")
+) |>
+  mutate(copy_number = as.numeric(as.character(Copy_Number)),
+                A           = observed_EAF,
+                Culture     = factor(Culture,   levels = c("batch", "chemostat")),
+                Substrate   = factor(Substrate, levels = c("single", "multi"))) |>
+  filter(!is.na(copy_number))
 
-
-
-custom_colors_class=c("Acidimicrobiia" ="#f21277",
-                      "Actinobacteria" ="#a02016",
-                      "Alphaproteobacteria" ="#ffb659",
-                      "Bacteroidia" = "#48591c",
-                      "Chloroflexia"='gray',
-                      "Deltaproteobacteria" ="#01a34a",
-                      "Gammaproteobacteria" ="#7bc6ff",
-                      "OM190" = 'gray',
-                      "Planctomycetacia" ="#00539e",
-                      "Rhodothermia"='gray',
-                      "Thermoleophilia" = 'gray',
-                      "vadinHA49" = "gray", 
-                      "Verrucomicrobiae" ="#6868f2")
-incorp_only$Class_ag=incorp_only$Class
-incorp_only$Class_ag=as.factor(incorp_only$Class_ag)
-levels(incorp_only$Class_ag)=c("Acidimicrobiia","Actinobacteria","Alphaproteobacteria","Bacteroidia","Other","Deltaproteobacteria","Gammaproteobacteria","Other","Planctomycetacia", "Other", "Other", "Other","Verrucomicrobiae")
+count(incorp_only, Culture, Substrate)   # chemostat should be here
 
 custom_colors_class=c("Acidimicrobiia" ="#f21277",
                       "Actinobacteria" ="#a02016",
                       "Alphaproteobacteria" ="#ffb659",
                       "Bacteroidia" = "#48591c",
-                                            "Other" = 'gray',
-
+                      "Other" = 'gray',
                       "Deltaproteobacteria" ="#01a34a",
                       "Gammaproteobacteria" ="#7bc6ff",
                       "Planctomycetacia" ="#00539e",
                       "Verrucomicrobiae" ="#6868f2")
 
-desired_order=c("Single", "Multi")
+incorp_only$Class_ag = ifelse(incorp_only$Class %in% names(custom_colors_class), as.character(incorp_only$Class), "Other")
+incorp_only$Class_ag = factor(incorp_only$Class_ag, levels = names(custom_colors_class))
+
+desired_order=c("single", "multi")
 incorp_only$Substrate <- factor(incorp_only$Substrate, levels = desired_order)
 
-formula = incorp_only$copy_number ~ incorp_only$A * incorp_only$Culture * incorp_only$Substrate
+
+formula = incorp_only$copy_number ~ incorp_only$observed_EAF * incorp_only$Culture * incorp_only$Substrate
+library(ggplot2)
+library(ggpmisc)
+incorp_only %>%
+  dplyr::group_by(Culture, Substrate) %>%
+  dplyr::summarize(
+    n  = dplyr::n(),
+    r2 = summary(lm(copy_number ~ observed_EAF))$r.squared,
+    F  = summary(lm(copy_number ~ observed_EAF))$fstatistic[1],
+    p  = summary(lm(copy_number ~ observed_EAF))$coefficients[2, 4],
+    .groups = "drop"
+  )
+
+ggplot(incorp_only, aes(x=observed_EAF, y=copy_number, color=Class_ag)) +
+  #geom_point(size=as.numeric(incorp_only$copy_number)*0.7, alpha=0.8) +
+  geom_point(size=3) +
+  geom_smooth(aes(group = 1), method = "lm", se = TRUE, col='black', fullrange=TRUE)  +
+  facet_wrap(Culture ~ Substrate) +
+  stat_poly_eq(aes(group = 1,
+                   label = paste(after_stat(rr.label), after_stat(p.value.label), sep = "*\", \"*")),
+               formula = y ~ x, colour = "black",
+               label.x = "left", label.y = "top", size = 4) +
+  theme_bw(base_size=12) +
+      geom_errorbar(aes(xmin = lower, xmax = upper), width = 0) +
+  xlab("Excess Atomic Fraction") +
+  ylab("Index of Copiotrophy") + 
+  theme(axis.line = element_line(colour = "black"),
+    panel.grid.major = element_blank(),
+    strip.text = element_text(size = 12),
+    strip.background = element_blank(),
+    panel.grid.minor = element_blank()) +
+    scale_color_manual(values=custom_colors_class)
+
 
 ggplot(incorp_only, aes(x=A, y=copy_number, color=Class_ag)) +
   #geom_point(size=as.numeric(incorp_only$copy_number)*0.7, alpha=0.8) +
   geom_point(size=3) +
-  geom_smooth(method = "lm", se = TRUE, col='black',fullrange=TRUE)  +
+      geom_errorbar(aes(xmin = lower, xmax = upper), width = 0) +
+
+  geom_smooth(aes(group = 1), method = "lm", se = TRUE, col='black',fullrange=TRUE)  +
   facet_wrap(Culture ~ Substrate) +
   theme_bw() +
-  xlab("Excess Atomic Fraction") +
-  ylab("16S GCN") + 
+  xlab("Excess Atom Fraction") +
+  ylab("16S Gene Copy Number") + 
   theme(axis.line = element_line(colour = "black"),
     panel.grid.major = element_blank(),
     strip.text = element_text(size = 12),
@@ -1070,68 +915,99 @@ ggplot(incorp_only, aes(x=A, y=copy_number, color=Class_ag)) +
 plot_16s=ggplot(incorp_only, aes(x=A, y=copy_number, color=Class_ag)) +
   #geom_point(size=as.numeric(incorp_only$copy_number)*0.7, alpha=0.8) +
   geom_point(size=3) +
-  geom_smooth(method = "lm", se = TRUE, col='black',fullrange=TRUE)  +
+  geom_smooth(aes(group = 1), method = "lm", se = TRUE, col='black',fullrange=TRUE)  +
   facet_wrap(Culture ~ Substrate) +
+    geom_errorbar(aes(xmin = lower, xmax = upper), width = 0) +
   theme_bw(base_size=12) +
-  xlab("Excess Atomic Fraction") +
-  ylab("16S GCN") + 
+  xlab("Excess Atom Fraction") +
+  ylab("16S Gene Copy Number") + 
   theme(axis.line = element_line(colour = "black"),
     panel.grid.major = element_blank(),
     strip.text = element_text(size = 12),
     strip.background = element_blank(),
     panel.grid.minor = element_blank(), legend.position='none') +
-    scale_color_manual(values=custom_colors_class) 
-
-
+    scale_color_manual(values=custom_colors_class)
 ```
-
-
 
 ### stats generated from here
-```{r copy-3, message=FALSE, error=FALSE, warning=FALSE, dpi=300, fig.width=8, fig.height=5}
 
-par(mfrow=c(1,3))
-glu_only=subset(incorp_only, id=="batch_glu")
-set.seed(124)
+```{r}
+library(dplyr)
+df=glucose_A
+df2 <- df |>
+  mutate(Copy_Number = as.numeric(as.character(Copy_Number)))
 
-plot(glu_only$A, glu_only$copy_number, pch=21, cex=1.22, bg='black', xlab="AFE", ylab="Gene Copy Number")
-ll=lm(glu_only$copy_number~glu_only$A)
-summary(ll)
-abline(ll)
-text(0.2, 8, "R2 = 0.23 
-F = 25.92 
-p = 2.23e-06")
+fit <- lm(Copy_Number ~ observed_EAF, data = df2)
+summary(fit)
+
+gplot_glucose_A=ggplot(df2, aes(x = observed_EAF, y = Copy_Number)) +
+  geom_errorbar(aes(xmin = lower, xmax = upper), width = 0) +
+  geom_point() +
+  geom_smooth(method = "lm", formula = y ~ x) +
+  theme_bw()  +
+  labs(title = "Batch Glucose", x='Excess Atom Fraction', y= '16S Gene Copy Number') +
+  theme(axis.line = element_line(colour = "black"),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank())
 
 
-batch_carbon=subset(incorp_only, id=="batch_carb")
-plot(batch_carbon$A, batch_carbon$copy_number, pch=21, cex=1.22, bg='black', xlab="AFE", ylab="Gene Copy Number")
-ll=lm(batch_carbon$copy_number~batch_carbon$A)
-summary(ll)
-abline(ll)
-text(0.2, 8, "R2 = 0.04975
-F = 4.089
-p = 0.04778")
+df=five_batch_A
+df2 <- df |>
+  mutate(Copy_Number = as.numeric(as.character(Copy_Number)))
 
-chemo_carbon=subset(incorp_only, id=="chemo_carb")
-plot(chemo_carbon$A, chemo_carbon$copy_number, pch=21, cex=1.22, bg='black', xlab="AFE", ylab="Gene Copy Number")
-ll=lm(chemo_carbon$copy_number~chemo_carbon$A)
-summary(ll)
-abline(ll)
+fit <- lm(Copy_Number ~ observed_EAF, data = df2)
+summary(fit)
 
+gplot_batch_A=ggplot(df2, aes(x = observed_EAF, y = Copy_Number)) +
+  geom_errorbar(aes(xmin = lower, xmax = upper), width = 0) +
+  geom_point() +
+  geom_smooth(method = "lm", formula = y ~ x) +
+  theme_bw()  +
+  labs(title = "Batch Five-Carbon", x='Excess Atom Fraction', y= '16S Gene Copy Number') +
+  theme(axis.line = element_line(colour = "black"),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank())
+
+
+
+df=five_chemo_A
+df2 <- df |>
+  mutate(Copy_Number = as.numeric(as.character(Copy_Number)))
+
+fit <- lm(Copy_Number ~ observed_EAF, data = df2)
+summary(fit)
+
+gplot_chemo_A=ggplot(df2, aes(x = observed_EAF, y = Copy_Number)) +
+  geom_errorbar(aes(xmin = lower, xmax = upper), width = 0) +
+  geom_point() +
+  geom_smooth(method = "lm", formula = y ~ x) +
+  theme_bw()  +
+  labs(title = "Chemostat Five-Carbon", x='Excess Atom Fraction', y= '16S Gene Copy Number') +
+  theme(axis.line = element_line(colour = "black"),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank())
+
+cowplot::plot_grid(gplot_glucose_A, gplot_batch_A, gplot_chemo_A, ncol=3)
 ```
 
 
-
-## Figure IoC
+## Figure 3 b
 
 ```{r copy-ico, message=FALSE, error=FALSE, warning=FALSE, dpi=300, fig.width=8, fig.height=5}
 
-ioc_data=read.csv("datafiles/gtdb_r220_ioc.csv",header=T)
-ioc_data=read.csv("datafiles/gtdb_r220_ioc_25june26.csv",header=T)
+ioc_data=read.csv("/Users/oliviaahern/Documents/GitHub/Sip_CopyNumber/datafiles/gtdb_r220_ioc_25june26.csv",header=T)
 
-incorp1=read.csv('datafiles/incorporators.csv',header = T)
+incorp1=asv_results_filt_tax
+incorp1 <- incorp1 |>
+  dplyr::mutate(
+    substrate = ifelse(grepl("glucose", treatment), "single", "multi"),
+    culture   = ifelse(grepl("^Chemo", treatment), "chemostat", "batch")
+  )
 
-incorp_w_ioc=merge(incorp1, ioc_data, by='OTU')
+dplyr::count(incorp1, treatment, substrate, culture)
+
+
+incorp_w_ioc=merge(incorp1, ioc_data, by='Strain')
 
 custom_colors_class=c("Acidimicrobiia" ="#f21277",
                       "Actinobacteria" ="#a02016",
@@ -1146,10 +1022,9 @@ custom_colors_class=c("Acidimicrobiia" ="#f21277",
                       "Thermoleophilia" = 'gray',
                       "vadinHA49" = "gray", 
                       "Verrucomicrobiae" ="#6868f2")
-incorp_only$Class_ag=incorp_only$Class
-incorp_only$Class_ag=as.factor(incorp_only$Class_ag)
-levels(incorp_only$Class_ag)=c("Acidimicrobiia","Actinobacteria","Alphaproteobacteria","Bacteroidia","Other","Deltaproteobacteria","Gammaproteobacteria","Other","Planctomycetacia", "Other", "Other", "Other","Verrucomicrobiae")
-
+incorp_w_ioc$Class_ag=incorp_w_ioc$Class
+incorp_w_ioc$Class_ag=as.factor(incorp_w_ioc$Class_ag)
+levels(incorp_w_ioc$Class_ag) = c("Acidimicrobiia","Actinobacteria","Alphaproteobacteria","Bacteroidia","Deltaproteobacteria","Gammaproteobacteria","Planctomycetacia","Verrucomicrobiae")
 custom_colors_class=c("Acidimicrobiia" ="#f21277",
                       "Actinobacteria" ="#a02016",
                       "Alphaproteobacteria" ="#ffb659",
@@ -1161,17 +1036,53 @@ custom_colors_class=c("Acidimicrobiia" ="#f21277",
                       "Planctomycetacia" ="#00539e",
                       "Verrucomicrobiae" ="#6868f2")
 
-desired_order=c("Single", "Multi")
-incorp_w_ioc$Substrate <- factor(incorp_w_ioc$Substrate, levels = desired_order)
+desired_order=c("single", "multi")
+incorp_w_ioc$substrate <- factor(incorp_w_ioc$substrate, levels = desired_order)
 
-formula = incorp_w_ioc$IoC_genus_mean ~ incorp_w_ioc$A * incorp_w_ioc$Culture * incorp_w_ioc$Substrate
 
-ggplot(incorp_w_ioc, aes(x=A, y=IoC_genus_mean, color=Class_ag)) +
+
+
+
+incorp_w_ioc |>
+  dplyr::group_by(culture, substrate) |>
+  dplyr::summarize(
+    n  = dplyr::n(),
+    r2 = summary(lm(IoC_genus_mean ~ observed_EAF))$r.squared,
+    F  = summary(lm(IoC_genus_mean ~ observed_EAF))$fstatistic[1],
+    p  = summary(lm(IoC_genus_mean ~ observed_EAF))$coefficients[2, 4],
+    .groups = "drop"
+  )
+
+plot_ioc=ggplot(incorp_w_ioc, aes(x=observed_EAF, y=IoC_genus_mean)) +
+  geom_point(aes(color=Class_ag), size=3) +
+  geom_smooth(method = "lm", se = TRUE, col='black',fullrange=TRUE)  +
+  stat_poly_eq(formula = y ~ x,
+               aes(label = paste(after_stat(rr.label), after_stat(p.value.label), sep = "*\", \"*")),
+               label.x = "left", label.y = "top", size = 4) +
+  facet_wrap(culture ~ substrate) +
+  theme_bw(base_size=12) +
+  xlab("Excess Atom Fraction") +
+  ylab("Index of copiotrophy") + 
+  geom_errorbar(aes(xmin = lower, xmax = upper), width = 0) +
+  theme(axis.line = element_line(colour = "black"),
+    panel.grid.major = element_blank(),
+    strip.text = element_text(size = 12),
+    strip.background = element_blank(),
+    panel.grid.minor = element_blank(), legend.position='none') +
+    scale_color_manual(values=custom_colors_class)
+
+plot_ioc
+
+
+formula = incorp_w_ioc$IoC_genus_mean ~ incorp_w_ioc$observed_EAF * incorp_w_ioc$culture * incorp_w_ioc$substrate
+
+ggplot(incorp_w_ioc, aes(x=observed_EAF, y=IoC_genus_mean, color=Class_ag)) +
   #geom_point(size=as.numeric(incorp_only$copy_number)*0.7, alpha=0.8) +
   geom_point(size=3) +
   geom_smooth(method = "lm", se = TRUE, col='black',fullrange=TRUE)  +
-  facet_wrap(Culture ~ Substrate) +
+  facet_wrap(culture ~ substrate) +
   theme_bw(base_size=12) +
+      geom_errorbar(aes(xmin = lower, xmax = upper), width = 0) +
   xlab("Excess Atomic Fraction") +
   ylab("Index of Copiotrophy") + 
   theme(axis.line = element_line(colour = "black"),
@@ -1182,12 +1093,13 @@ ggplot(incorp_w_ioc, aes(x=A, y=IoC_genus_mean, color=Class_ag)) +
     scale_color_manual(values=custom_colors_class) 
 
 
-copio_plot=ggplot(incorp_w_ioc, aes(x=A, y=IoC_genus_mean, color=Class_ag)) +
+copio_plot=ggplot(incorp_w_ioc, aes(x=observed_EAF, y=IoC_genus_mean, color=Class_ag)) +
   #geom_point(size=as.numeric(incorp_only$copy_number)*0.7, alpha=0.8) +
   geom_point(size=3) +
   geom_smooth(method = "lm", se = TRUE, col='black',fullrange=TRUE)  +
-  facet_wrap(Culture ~ Substrate) +
+  facet_wrap(culture ~ substrate) +
   theme_bw(base_size=12) +
+        geom_errorbar(aes(xmin = lower, xmax = upper), width = 0) +
   xlab("Excess Atomic Fraction") +
   ylab("Index of Copiotrophy") + 
   theme(axis.line = element_line(colour = "black"),
@@ -1200,7 +1112,7 @@ copio_plot=ggplot(incorp_w_ioc, aes(x=A, y=IoC_genus_mean, color=Class_ag)) +
 
 
 
-```{r copy-ico2, message=FALSE, error=FALSE, warning=FALSE, dpi=300, fig.width=8, fig.height=5}
+```{r copy-ico4, message=FALSE, error=FALSE, warning=FALSE, dpi=300, fig.width=8, fig.height=5, eval=FALSE}
 library(ggh4x)
 plot_16sa= plot_16s+ force_panelsizes(rows = unit(2.5, "in"), 
                      cols = unit(2.5, "in"))
@@ -1211,7 +1123,7 @@ quahog=cowplot::plot_grid(plot_16sa,copio_plota,
                    axis='l',
                    byrow=TRUE,
                    nrow=2)
-ggsave('figure2_withioc.svg', plot=quahog, dpi=300)
+#ggsave('figure2_withioc.svg', plot=quahog, dpi=300)
 
 
 copio_plot3=ggplot(incorp_w_ioc, aes(x=A, y=IoC_genus_mean, color=Class_ag)) +
@@ -1243,36 +1155,403 @@ cowplot::plot_grid(copio_plot3,
 
 ### stats generated from here
 ```{r copy-5, message=FALSE, error=FALSE, warning=FALSE, dpi=300, fig.width=8, fig.height=5}
+df2=subset(incorp_w_ioc, treatment=="batch_glucose")
+fit <- lm(IoC_genus_mean ~ observed_EAF, data = df2)
+summary(fit)
 
-par(mfrow=c(1,3))
-glu_only=subset(incorp_w_ioc, id=="batch_glu")
-set.seed(124)
-
-plot(glu_only$A, glu_only$IoC_genus_mean, pch=21, cex=1.22, bg='black', xlab="AFE", ylab="IoC_genus_mean")
-ll=lm(glu_only$IoC_genus_mean~glu_only$A)
-summary(ll)
-abline(ll)
-text(0.2, 6, "R2 = 0.2656 
-F = 23.07 
-p = 1.083e-05")
+gplot_glucose_A=ggplot(df2, aes(x = observed_EAF, y = IoC_genus_mean)) +
+  geom_errorbar(aes(xmin = lower, xmax = upper), width = 0, orientation = "y") +
+  geom_point() +
+  geom_smooth(method = "lm", formula = y ~ x) +
+  theme_bw()  +
+  labs(title = "Batch Glucose", x= 'Excess Atom Fraction', y='Index of Copiotrophy') +
+  theme(axis.line = element_line(colour = "black"),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank())
 
 
-batch_carbon=subset(incorp_w_ioc, id=="batch_carb")
-plot(batch_carbon$A, batch_carbon$IoC_genus_mean, pch=21, cex=1.22, bg='black', xlab="AFE", ylab="IoC_genus_mean")
-ll=lm(batch_carbon$IoC_genus_mean~batch_carbon$A)
-summary(ll)
-abline(ll)
-text(0.2, 5, "R2 = 0.077
-F = 4.257
-p = 0.045")
+df2=subset(incorp_w_ioc, treatment=="batch_carbon")
+fit <- lm(IoC_genus_mean ~ observed_EAF, data = df2)
+summary(fit)
 
-chemo_carbon=subset(incorp_w_ioc, id=="chemo_carb")
-plot(chemo_carbon$A, chemo_carbon$IoC_genus_mean, pch=21, cex=1.22, bg='black', xlab="AFE", ylab="IoC_genus_mean")
-ll=lm(chemo_carbon$IoC_genus_mean~chemo_carbon$A)
-summary(ll)
-abline(ll)
+gplot_batch_A=ggplot(df2, aes(x = observed_EAF, y = IoC_genus_mean)) +
+  geom_errorbar(aes(xmin = lower, xmax = upper), width = 0, orientation = "y") +
+  geom_point() +
+  geom_smooth(method = "lm", formula = y ~ x) +
+  theme_bw()  +
+  labs(title = "Batch Five-Carbon", x= 'Excess Atom Fraction', y='Index of Copiotrophy') +
+  theme(axis.line = element_line(colour = "black"),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank())
+
+
+
+df2=subset(incorp_w_ioc, treatment=="Chemo_carbon")
+fit <- lm(IoC_genus_mean ~ observed_EAF, data = df2)
+summary(fit)
+
+gplot_chemo_A=ggplot(df2, aes(x = observed_EAF, y = IoC_genus_mean)) +
+  geom_errorbar(aes(xmin = lower, xmax = upper), width = 0, orientation = "y") +
+  geom_point() +
+  geom_smooth(method = "lm", formula = y ~ x) +
+  theme_bw()  +
+  labs(title = "Chemostat Five-Carbon", x= 'Excess Atom Fraction', y='Index of Copiotrophy') +
+  theme(axis.line = element_line(colour = "black"),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank())
+
+cowplot::plot_grid(gplot_glucose_A, gplot_batch_A, gplot_chemo_A, ncol=3)
 
 ```
+
+
+## Figure 4 
+```{r batch-bb2, message=FALSE, error=FALSE, warning=FALSE, dpi=300, fig.width=6, fig.height=4}
+
+multi=subset(incorp_only, Substrate=="multi" & Culture=="batch")
+single=subset(incorp_only, Substrate=="single" & Culture=="batch")
+
+# ---- shared batch incorporators, with each treatment's CI ----
+both <- merge(
+  single[, c("feature_id", "A", "lower", "upper", "Class", "copy_number")],
+  multi[,  c("feature_id", "A", "lower", "upper")],
+  by = "feature_id", suffixes = c("_single", "_multi")
+)
+both$Single <- both$A_single
+both$Multi  <- both$A_multi
+
+custom_colors_class=c("Acidimicrobiia" ="#f21277",
+                      "Actinobacteria" ="#a02016",
+                      "Alphaproteobacteria" ="#ffb659",
+                      "Bacteroidia" = "#48591c",
+                      "Other" = 'gray',
+                      "Deltaproteobacteria" ="#01a34a",
+                      "Gammaproteobacteria" ="#7bc6ff",
+                      "Planctomycetacia" ="#00539e",
+                      "Verrucomicrobiae" ="#6868f2")
+
+both$Class_ag = ifelse(both$Class %in% names(custom_colors_class), as.character(both$Class), "Other")
+both$Class_ag = factor(both$Class_ag, levels = names(custom_colors_class))
+
+# ---- regression stats for the annotation ----
+summary(lm(Single ~ Multi, data = both))
+nrow(both)
+
+ggplot(both, aes(x=as.numeric(A_multi), y=as.numeric(A_single),  color=Class_ag)) +
+  geom_errorbar(aes(ymin = lower_single, ymax = upper_single), width = 0, alpha = 0.6) +
+  geom_errorbar(aes(xmin = lower_multi,  xmax = upper_multi),  width = 0, alpha = 0.6) +
+  geom_point(size=as.numeric(both$copy_number), alpha=0.8) +
+  theme_bw() +
+  coord_cartesian(xlim = c(0, 0.8), ylim = c(0, 0.8)) +
+  theme(axis.line = element_line(colour = "black"),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank()) +
+    geom_smooth(aes(group = 1), method = "lm", se = TRUE, col='black',fullrange=TRUE) + 
+    geom_abline(intercept = 0, slope = 1, color = "black", linetype = "dashed", linewidth = 1) +
+  xlab("EAF multi-substrate batch") +
+  ylab("EAF single-substrate batch") +
+#  annotate("text", label="R2 = 0.30 \n F = 25.38 \n p = 5.4 e-6", x=0.6, y=0.4) +
+  scale_color_manual(values=custom_colors_class)
+
+
+# new
+fit4 <- summary(lm(Single ~ Multi, data = both))
+lab4 <- paste0("R\u00b2 = ", sprintf("%.2f", fit4$r.squared),
+               "\nF = ", sprintf("%.2f", fit4$fstatistic[1]),
+              "\np = ", format(signif(coef(fit4)[2, 4], 2), scientific = TRUE))
+library(dplyr)
+both <- both %>%
+  mutate(copy_number = as.numeric(as.character(copy_number)))
+
+new2=ggplot(both, aes(x=as.numeric(Multi), y=as.numeric(Single),  color=Class)) +
+  geom_smooth(aes(group = 1), method = "lm", se = TRUE, col='black',fullrange=TRUE,linewidth=1) + 
+  geom_errorbar(aes(ymin = lower_single, ymax = upper_single), width = 0, alpha = 0.6, linewidth = 0.3) +
+  geom_errorbar(aes(xmin = lower_multi,  xmax = upper_multi),  width = 0, alpha = 0.6, linewidth = 0.3) +
+  geom_point(aes(size=as.numeric(copy_number)), alpha=0.8, show.legend=TRUE) +
+  theme_bw(base_size = 14) + 
+  scale_size(range = c(2, 9), breaks = c(1, 4, 7)) +
+  ylim(c(0,0.8)) + xlim(c(0,0.8))  +
+  theme(axis.line = element_line(colour = "black"),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    strip.text = element_text(size = 12)) +
+  geom_abline(intercept = 0, slope = 1, color = "black", linetype = "dashed") +
+  xlab("EAF multi-substrate batch") +
+  ylab("EAF single-substrate batch") +
+  labs(size = "16S Gene Copy Number") +
+# annotate("text", label = lab4, x = 0.6, y = 0.2, hjust = 0, size = 4.5) +
+  scale_color_manual(values=custom_colors_class) +
+  guides(color = guide_legend(override.aes = list(size = 5, linetype = 0)))
+
+new2
+#ggsave(filename = 'figure4.svg', new2, dpi=300,height=3.7, width=6, units='in')
+
+
+```
+
+### reviewer dilution question 
+```{r batch-bb, message=FALSE, error=FALSE, warning=FALSE, dpi=300, fig.width=6, fig.height=4}
+
+
+both <- both %>%
+  mutate(ratio = as.numeric(Multi) / as.numeric(Single))
+
+median(both$ratio)
+
+
+multi=subset(incorp_only, Substrate=="multi" & Culture=="batch")
+single=subset(incorp_only, Substrate=="single" & Culture=="batch")
+
+both <- merge(
+  single[, c("feature_id", "A", "lower", "upper", "Class", "copy_number")],
+  multi[,  c("feature_id", "A", "lower", "upper")],
+  by = "feature_id", suffixes = c("_single", "_multi")
+)
+both$Single <- both$A_single
+both$Multi  <- both$A_multi
+
+custom_colors_class=c("Acidimicrobiia" ="#f21277",
+                      "Actinobacteria" ="#a02016",
+                      "Alphaproteobacteria" ="#ffb659",
+                      "Bacteroidia" = "#48591c",
+                      "Other" = 'gray',
+                      "Deltaproteobacteria" ="#01a34a",
+                      "Gammaproteobacteria" ="#7bc6ff",
+                      "Planctomycetacia" ="#00539e",
+                      "Verrucomicrobiae" ="#6868f2")
+
+both$Class_ag = ifelse(both$Class %in% names(custom_colors_class), as.character(both$Class), "Other")
+both$Class_ag = factor(both$Class_ag, levels = names(custom_colors_class))
+
+# ---- regression stats for the annotation ----
+summary(lm(Single ~ Multi, data = both))
+nrow(both)
+
+ggplot(both, aes(x=as.numeric(A_multi), y=as.numeric(A_single),  color=Class_ag)) +
+  geom_errorbar(aes(ymin = lower_single, ymax = upper_single), width = 0, alpha = 0.6) +
+  geom_errorbar(aes(xmin = lower_multi,  xmax = upper_multi),  width = 0, alpha = 0.6) +
+  geom_point(size=as.numeric(both$copy_number), alpha=0.8) +
+  theme_bw() +
+  coord_cartesian(xlim = c(0, 0.8), ylim = c(0, 0.8)) +
+  theme(axis.line = element_line(colour = "black"),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank()) +
+    geom_smooth(aes(group = 1), method = "lm", se = TRUE, col='black',fullrange=TRUE) + 
+    geom_abline(intercept = 0, slope = 1, color = "black", linetype = "dashed", linewidth = 1) +
+  xlab("EAF multi-substrate batch") +
+  ylab("EAF single-substrate batch") +
+#  annotate("text", label="R2 = 0.30 \n F = 25.38 \n p = 5.4 e-6", x=0.6, y=0.4) +
+  scale_color_manual(values=custom_colors_class)
+
+
+# new
+fit4 <- summary(lm(Single ~ Multi, data = both))
+lab4 <- paste0("R\u00b2 = ", sprintf("%.2f", fit4$r.squared),
+               "\nF = ", sprintf("%.2f", fit4$fstatistic[1]),
+              "\np = ", format(signif(coef(fit4)[2, 4], 2), scientific = TRUE))
+library(dplyr)
+both <- both %>%
+  mutate(copy_number = as.numeric(as.character(copy_number)))
+
+new2=ggplot(both, aes(x=as.numeric(Multi), y=as.numeric(Single),  color=Class)) +
+  geom_smooth(aes(group = 1), method = "lm", se = TRUE, col='black',fullrange=TRUE,linewidth=1) + 
+  geom_errorbar(aes(ymin = lower_single, ymax = upper_single), width = 0, alpha = 0.6, linewidth = 0.3) +
+  geom_errorbar(aes(xmin = lower_multi,  xmax = upper_multi),  width = 0, alpha = 0.6, linewidth = 0.3) +
+  geom_point(aes(size=as.numeric(copy_number)), alpha=0.8, show.legend=TRUE) +
+  theme_bw(base_size = 14) + 
+  scale_size(range = c(2, 9), breaks = c(1, 4, 7)) +
+  ylim(c(0,0.8)) + xlim(c(0,0.8))  +
+  theme(axis.line = element_line(colour = "black"),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    strip.text = element_text(size = 12)) +
+  geom_abline(intercept = 0, slope = 1, color = "black", linetype = "dashed") +
+  xlab("EAF multi-substrate batch") +
+  ylab("EAF single-substrate batch") +
+  labs(size = "16S Gene Copy Number") +
+# annotate("text", label = lab4, x = 0.6, y = 0.2, hjust = 0, size = 4.5) +
+  scale_color_manual(values=custom_colors_class) +
+  guides(color = guide_legend(override.aes = list(size = 5, linetype = 0)))
+
+new2
+#ggsave(filename = 'figure4.svg', new2, dpi=300,height=3.7, width=6, units='in')
+
+
+```
+
+
+
+### some stats
+
+##### eaf between treatments
+```{r}
+
+
+a=aov(incorp_only$observed_EAF~incorp_only$treatment)
+boxplot(incorp_only$observed_EAF~incorp_only$treatment)
+summary(a)
+tuk=TukeyHSD(a)
+plot(tuk)
+
+aggregate(observed_EAF ~ treatment, data = incorp_only, FUN = mean)
+aggregate(observed_EAF ~ treatment, data = incorp_only, FUN = sd)
+
+```
+
+##### gene copy number between treatments
+```{r}
+
+a=aov(as.numeric(incorp_only$Copy_Number)~incorp_only$treatment)
+boxplot(as.numeric(incorp_only$Copy_Number)~incorp_only$treatment)
+summary(a)
+tuk=TukeyHSD(a)
+plot(tuk)
+
+aggregate(as.numeric(Copy_Number) ~ treatment, data = incorp_only, FUN = mean)
+aggregate(as.numeric(Copy_Number) ~ treatment, data = incorp_only, FUN = sd)
+
+```
+
+
+##### ioc 
+```{r}
+summary(as.factor(incorp_w_ioc$treatment))
+a=aov(as.numeric(incorp_w_ioc$IoC_genus_mean)~incorp_w_ioc$treatment)
+boxplot(as.numeric(incorp_w_ioc$IoC_genus_mean)~incorp_w_ioc$treatment)
+summary(a)
+tuk=TukeyHSD(a)
+plot(tuk)
+
+aggregate(as.numeric(IoC_genus_mean) ~ treatment, data = incorp_w_ioc, FUN = mean)
+aggregate(as.numeric(IoC_genus_mean) ~ treatment, data = incorp_w_ioc, FUN = sd)
+```
+
+
+
+
+### SI Figure 2 - gc content and copy number
+
+```{r si-fig-2, message=FALSE, error=FALSE, warning=FALSE, dpi=300, fig.width=7, fig.height=4}
+
+#dim(incorp_only)
+#incorp_only$Class
+incorp_only2=incorp_only
+## add 
+library(dplyr)
+incorp_only2 <- incorp_only2 %>%
+  left_join(shift_df %>% dplyr::select(treatment, feature_id, W_unlab),
+            by = c("treatment", "feature_id"))
+
+incorp_only2$Class_ag=incorp_only2$Class
+incorp_only2$Class_ag=as.factor(incorp_only2$Class_ag)
+
+custom_colors_class=c("Acidimicrobiia" ="#f21277",
+                      "Actinobacteria" ="#a02016",
+                      "Alphaproteobacteria" ="#ffb659",
+                      "Bacteroidia" = "#48591c",
+                                            "Other" = 'gray',
+
+                      "Deltaproteobacteria" ="#01a34a",
+                      "Gammaproteobacteria" ="#7bc6ff",
+                      "Planctomycetacia" ="#00539e",
+                      "Verrucomicrobiae" ="#6868f2")
+
+desired_order=c("single", "multi")
+incorp_only2$Substrate <- factor(incorp_only2$Substrate, levels = desired_order)
+
+
+ggplot(incorp_only2, aes(x=A, y=W_unlab, fill=Class_ag, color=Class_ag)) + 
+  geom_errorbar(aes(xmin = lower,  xmax = upper),  width = 0, alpha = 0.6) +
+   geom_point(size=as.numeric(incorp_only2$copy_number),alpha=0.7) +
+  #geom_point(size=3) +
+  facet_wrap(Culture ~ Substrate) +
+  theme_bw() +
+  theme(legend.position='right') +
+  scale_fill_manual(values=custom_colors_class) + 
+  scale_color_manual(values=custom_colors_class) +
+      scale_y_reverse() +
+  xlab("EAF") +
+  ylab(expression(" "*C^12*" Control Buoyant Density (g/mL)")) + 
+  theme(axis.line = element_line(colour = "black"),
+    panel.grid.major = element_blank(),
+    strip.text = element_text(size = 12),
+    strip.background = element_blank(),
+    panel.grid.minor = element_blank())
+
+
+# new
+gplot_s2=ggplot(incorp_only2, aes(x=A, y=W_unlab,  fill=Class_ag, color= Class_ag,size=copy_number)) +
+geom_errorbar(aes(xmin = lower,  xmax = upper), linewidth=1,  alpha = 0.6) +
+   geom_point(alpha=0.8,show.legend=TRUE)+
+    theme_bw(base_size = 12) + 
+
+  facet_wrap(Culture ~ Substrate) +
+  theme_bw() +
+  theme(legend.position='right') +
+  scale_fill_manual(values=custom_colors_class) + 
+  scale_color_manual(values=custom_colors_class) +
+      scale_y_reverse() +
+  xlab("EAF") +
+  ylab(expression(" "*C^12*" Control Buoyant Density (g/mL)")) + 
+  theme(axis.line = element_line(colour = "black"),
+    panel.grid.major = element_blank(),
+    strip.text = element_text(size = 12),
+    strip.background = element_blank(),
+    panel.grid.minor = element_blank()) + scale_color_manual(values=custom_colors_class) + guides(color = guide_legend(override.aes = list(size = 4)))
+
+#ggsave(plot=gplot_s2, 'sifigure2.svg', dpi=300, height = 5, width=10.5)
+```
+
+
+### SI Figure 4 - EAF by genera
+
+```{r si-fig-4, message=FALSE, error=FALSE, warning=FALSE, dpi=300, fig.width=7, fig.height=4}
+library(dplyr)
+library(ggplot2)
+
+
+custom_colors_class=c("Acidimicrobiia" ="#f21277",
+                      "Actinobacteria" ="#a02016",
+                      "Alphaproteobacteria" ="#ffb659",
+                      "Bacteroidia" = "#48591c",
+                      "Other" = 'gray',
+                      "Deltaproteobacteria" ="#01a34a",
+                      "Gammaproteobacteria" ="#7bc6ff",
+                      "Planctomycetacia" ="#00539e",
+                      "Verrucomicrobiae" ="#6868f2")
+
+incorp_only2$Class_ag = ifelse(incorp_only$Class %in% names(custom_colors_class), as.character(incorp_only2$Class), "Other")
+incorp_only2$Class_ag = factor(incorp_only2$Class_ag, levels = names(custom_colors_class))
+
+
+plot_df <- incorp_only2 %>%
+  filter(!is.na(Genus), !Genus %in% c("", "uncultured", "uncultured bacterium", "Ambiguous_taxa")) %>%
+  mutate(Genus_label = Genus,
+         panel = factor(paste0(Substrate, "-substrate ", Culture),
+                        levels = c("single-substrate batch",
+                                   "multi-substrate batch",
+                                   "multi-substrate chemostat")),
+         Genus_label = reorder(Genus_label, observed_EAF, FUN = mean))
+
+gplot_s3=ggplot(plot_df, aes(x = observed_EAF, y = Genus_label, fill=Class_ag)) +
+  geom_vline(xintercept = 0, linetype = "dotted") +
+  geom_errorbar(aes(xmin = lower, xmax = upper), width = 0, orientation = "y") +
+  geom_point(shape = 21,  size = 2, alpha=0.7) +
+  facet_grid(. ~ panel) +
+  scale_fill_manual(values=custom_colors_class) +
+  scale_x_continuous(breaks = c(0, 0.25, 0.5, 0.75)) +
+  labs(x = expression("EAF"), y = NULL) +
+  theme_bw(base_size = 12) +
+  theme(strip.background = element_blank(),
+        strip.text = element_text(size = 12),
+        panel.grid.minor = element_blank(),
+        axis.text.y = element_text(size = 8, face='italic'))
+
+
+#ggsave('si_fig4.svg', plot=gplot_s3, height=6,width=12, dpi=300)
+```
+
+
 
 
 
@@ -1320,8 +1599,12 @@ adonis2(gp.dist ~ as.factor(sample_data(GP)$Culture) +as.factor(sample_data(GP)$
 ```{r pcoa-2, message=FALSE, error=FALSE, warning=FALSE, dpi=300, fig.width=8, fig.height=3}
 # phyo_frac2=subset_taxa(phyo_frac, Strain %in% incorp_only$OTU)
 # for some reason the above command doesn't work in my markdown so I just saved it 
-phyo_frac2=readRDS('datafiles/phyo_frac2')
-GP <- transform_sample_counts(phyo_frac2, function(x) x+1)
+
+#subset_asvs= incorp_only$Strain
+#phyo_frac3=subset_taxa(phyo_frac, Strain %in% subset_asvs)
+#saveRDS(phyo_frac3,'/Users/oliviaahern/Documents/GitHub/Sip_CopyNumber2/datafiles/phyo_frac3')
+phyo_frac3=readRDS('/Users/oliviaahern/Documents/GitHub/Sip_CopyNumber2/datafiles/phyo_frac3')
+GP <- transform_sample_counts(phyo_frac3, function(x) x+1)
 phy_tree(GP) <- makeNodeLabel(phy_tree(GP), method="number", prefix='n')
 name.balance(phy_tree(GP), tax_table(GP), 'n1')
 
@@ -1353,560 +1636,80 @@ adonis2(gp.dist ~ as.factor(sample_data(GP)$Culture) +as.factor(sample_data(GP)$
 
 ```
 
-# shared asvs among treatments 
 
 
-## ASVs present in all three treatmnents
-
-I am not keeping this in because we used different CsTFA gradients for the batch and chemostat
-
+## SI Figure 3 relative abundance community
 ```{r}
-# summary(qsip_data$OTU)
-# two ASVs that were in all treatments positively 
-# ffd660f96ba6668b2d8d86fc4e150862
-# 84ea3564fd34c5377c4305b340f0c16f
-
-# af27577de5edb10c09f7fc19b9ca45ca true for batch but false for chemostat
-# false for batch single e416d0916760d2fc17b616e2ac3ad855
-```
-
-### ASV 1
-```{r asv1,message=FALSE, error=FALSE, warning=FALSE, dpi=300, fig.width=7, fig.height=4 }
-
-par(mfrow=c(1,3))
-asv2=subset_taxa(physeq_rep3_t, Strain=="ffd660f96ba6668b2d8d86fc4e150862")
-tax_table(asv2)
-asv2_batch_single = subset_samples(asv2, Culture == "Batch" & Treatment == "Single")
-
-plot( otu_table( subset_samples(asv2_batch_single, Isotope =="C12"))/max(otu_table( subset_samples(asv2_batch_single, Isotope =="C12"))),
-      sample_data(subset_samples(asv2_batch_single, Isotope =="C12"))$diff_C12_peak,
-     type="o", ylim=c(-0.05,0.051), col='gray', pch=21, bg='gray',
-     ylab="Difference from C12 qPCR Peak (g/mL)", xlab="Ratio of Maximum Quantity of ASV",
-     main="Batch Single")
-lines( otu_table( subset_samples(asv2_batch_single, Isotope =="C13"))/max(otu_table( subset_samples(asv2_batch_single, Isotope =="C13"))),
-       sample_data(subset_samples(asv2_batch_single, Isotope =="C13"))$diff_C12_peak,
-     type="o", col='black', pch=21, bg='black')
-text(0.6, -0.04, "EAF = 0.38")
-
-
-asv2_batch_five = subset_samples(asv2, Culture == "Batch" & Treatment == "Multi")
-
-plot( otu_table( subset_samples(asv2_batch_five, Isotope =="C12"))/max(otu_table( subset_samples(asv2_batch_five, Isotope =="C12"))),
-      sample_data(subset_samples(asv2_batch_five, Isotope =="C12"))$diff_C12_peak,
-     type="o", ylim=c(-0.05,0.051), col='gray', pch=21, bg='gray',
-     ylab="Difference from C12 qPCR Peak (g/mL)", xlab="Ratio of Maximum Quantity of ASV",
-     main="Batch Multi")
-lines( otu_table( subset_samples(asv2_batch_five, Isotope =="C13"))/max(otu_table( subset_samples(asv2_batch_five, Isotope =="C13"))),
-       sample_data(subset_samples(asv2_batch_five, Isotope =="C13"))$diff_C12_peak,
-     type="o", col='black', pch=21, bg='black')
-text(0.6, -0.04, "EAF = 0.14")
-
-
-asv2_chemo = subset_samples(asv2, Culture == "Chemostat")
-
-plot( otu_table( subset_samples(asv2_chemo, Isotope =="C12"))/max(otu_table( subset_samples(asv2_chemo, Isotope =="C12"))),
-      sample_data(subset_samples(asv2_chemo, Isotope =="C12"))$diff_C12_peak,
-     type="o", ylim=c(-0.05,0.051), col='gray', pch=21, bg='gray',
-     ylab="Difference from C12 qPCR Peak(g/mL)", xlab="Ratio of Maximum Quantity of ASV", 
-     main="Chemostat Multi")
-lines(otu_table( subset_samples(asv2_chemo, Isotope =="C13"))/max(otu_table( subset_samples(asv2_chemo, Isotope =="C13"))),
-      sample_data(subset_samples(asv2_chemo, Isotope =="C13"))$diff_C12_peak, 
-     type="o", col='black', pch=21, bg='black')
-text(0.6, -0.04, "EAF = 0.32")
-
-```
-
-
-### ASV 2
-```{r asv2, message=FALSE, error=FALSE, warning=FALSE, dpi=300, fig.width=7, fig.height=4}
-
-
-par(mfrow=c(1,3))
-asv2=subset_taxa(physeq_rep3_t, Strain=="84ea3564fd34c5377c4305b340f0c16f")
-tax_table(asv2)
-asv2_batch_single = subset_samples(asv2, Culture == "Batch" & Treatment == "Single")
-
-plot( otu_table( subset_samples(asv2_batch_single, Isotope =="C12"))/max(otu_table( subset_samples(asv2_batch_single, Isotope =="C12"))),
-      sample_data(subset_samples(asv2_batch_single, Isotope =="C12"))$diff_C12_peak,
-     type="o", ylim=c(-0.05,0.051), col='gray', pch=21, bg='gray',
-     ylab="Difference from C12 qPCR Peak (g/mL)", xlab="Ratio of Maximum Quantity of ASV",
-     main="Batch Single")
-lines( otu_table( subset_samples(asv2_batch_single, Isotope =="C13"))/max(otu_table( subset_samples(asv2_batch_single, Isotope =="C13"))),
-       sample_data(subset_samples(asv2_batch_single, Isotope =="C13"))$diff_C12_peak,
-     type="o", col='black', pch=21, bg='black')
-text(0.6, -0.04, "EAF = 0.13")
-
-
-asv2_batch_five = subset_samples(asv2, Culture == "Batch" & Treatment == "Multi")
-
-plot( otu_table( subset_samples(asv2_batch_five, Isotope =="C12"))/max(otu_table( subset_samples(asv2_batch_five, Isotope =="C12"))),
-      sample_data(subset_samples(asv2_batch_five, Isotope =="C12"))$diff_C12_peak,
-     type="o", ylim=c(-0.05,0.051), col='gray', pch=21, bg='gray',
-     ylab="Difference from C12 qPCR Peak (g/mL)", xlab="Ratio of Maximum Quantity of ASV",
-     main="Batch Multi")
-lines( otu_table( subset_samples(asv2_batch_five, Isotope =="C13"))/max(otu_table( subset_samples(asv2_batch_five, Isotope =="C13"))),
-       sample_data(subset_samples(asv2_batch_five, Isotope =="C13"))$diff_C12_peak,
-     type="o", col='black', pch=21, bg='black')
-text(0.6, -0.04, "EAF = 0.15")
-
-
-asv2_chemo = subset_samples(asv2, Culture == "Chemostat")
-
-plot( otu_table( subset_samples(asv2_chemo, Isotope =="C12"))/max(otu_table( subset_samples(asv2_chemo, Isotope =="C12"))),
-      sample_data(subset_samples(asv2_chemo, Isotope =="C12"))$diff_C12_peak,
-     type="o", ylim=c(-0.05,0.051), col='gray', pch=21, bg='gray',
-     ylab="Difference from C12 qPCR Peak (g/mL)", xlab="Ratio of Maximum Quantity of ASV", 
-     main="Chemostat Multi")
-lines(otu_table( subset_samples(asv2_chemo, Isotope =="C13"))/max(otu_table( subset_samples(asv2_chemo, Isotope =="C13"))),
-      sample_data(subset_samples(asv2_chemo, Isotope =="C13"))$diff_C12_peak, 
-     type="o", col='black', pch=21, bg='black')
-text(0.6, -0.04, "EAF = 0.69")
-
-```
-
-### ASV 3 
-```{r asv3, message=FALSE, error=FALSE, warning=FALSE, dpi=300, fig.width=7, fig.height=4}
-
-
-par(mfrow=c(1,3))
-asv2=subset_taxa(physeq_rep3_t, Strain=="af27577de5edb10c09f7fc19b9ca45ca")
-tax_table(asv2)
-asv2_batch_single = subset_samples(asv2, Culture == "Batch" & Treatment == "Single")
-
-plot( otu_table( subset_samples(asv2_batch_single, Isotope =="C12"))/max(otu_table( subset_samples(asv2_batch_single, Isotope =="C12"))),
-      sample_data(subset_samples(asv2_batch_single, Isotope =="C12"))$diff_C12_peak,
-     type="o", ylim=c(-0.05,0.051), col='gray', pch=21, bg='gray',
-     ylab="Difference from C12 qPCR Peak (g/mL)", xlab="Ratio of Maximum Quantity of ASV",
-     main="Batch Single")
-lines( otu_table( subset_samples(asv2_batch_single, Isotope =="C13"))/max(otu_table( subset_samples(asv2_batch_single, Isotope =="C13"))),
-       sample_data(subset_samples(asv2_batch_single, Isotope =="C13"))$diff_C12_peak,
-     type="o", col='black', pch=21, bg='black')
-text(0.6, -0.04, "EAF = 0.56")
-
-
-asv2_batch_five = subset_samples(asv2, Culture == "Batch" & Treatment == "Multi")
-
-plot( otu_table( subset_samples(asv2_batch_five, Isotope =="C12"))/max(otu_table( subset_samples(asv2_batch_five, Isotope =="C12"))),
-      sample_data(subset_samples(asv2_batch_five, Isotope =="C12"))$diff_C12_peak,
-     type="o", ylim=c(-0.05,0.051), col='gray', pch=21, bg='gray',
-     ylab="Difference from C12 qPCR Peak (g/mL)", xlab="Ratio of Maximum Quantity of ASV",
-     main="Batch Multi")
-lines( otu_table( subset_samples(asv2_batch_five, Isotope =="C13"))/max(otu_table( subset_samples(asv2_batch_five, Isotope =="C13"))),
-       sample_data(subset_samples(asv2_batch_five, Isotope =="C13"))$diff_C12_peak,
-     type="o", col='black', pch=21, bg='black')
-text(0.6, -0.04, "EAF = 0.31")
-
-
-asv2_chemo = subset_samples(asv2, Culture == "Chemostat")
-
-plot( otu_table( subset_samples(asv2_chemo, Isotope =="C12"))/max(otu_table( subset_samples(asv2_chemo, Isotope =="C12"))),
-      sample_data(subset_samples(asv2_chemo, Isotope =="C12"))$diff_C12_peak,
-     type="o", ylim=c(-0.05,0.051), col='gray', pch=21, bg='gray',
-     ylab="Difference from C12 qPCR Peak (g/mL)", xlab="Ratio of Maximum Quantity of ASV", 
-     main="Chemostat Multi")
-lines(otu_table( subset_samples(asv2_chemo, Isotope =="C13"))/max(otu_table( subset_samples(asv2_chemo, Isotope =="C13"))),
-      sample_data(subset_samples(asv2_chemo, Isotope =="C13"))$diff_C12_peak, 
-     type="o", col='black', pch=21, bg='black')
-text(0.6, -0.04, "EAF = NA")
-
-```
-
-
-
-### ASV 4
-```{r asv4, message=FALSE, error=FALSE, warning=FALSE, dpi=300, fig.width=7, fig.height=4}
-
-
-par(mfrow=c(1,3))
-asv2=subset_taxa(physeq_rep3_t, Strain=="e416d0916760d2fc17b616e2ac3ad855")
-tax_table(asv2)
-asv2_batch_single = subset_samples(asv2, Culture == "Batch" & Treatment == "Single")
-
-plot( otu_table( subset_samples(asv2_batch_single, Isotope =="C12"))/max(otu_table( subset_samples(asv2_batch_single, Isotope =="C12"))),
-      sample_data(subset_samples(asv2_batch_single, Isotope =="C12"))$diff_C12_peak,
-     type="o", ylim=c(-0.05,0.051), col='gray', pch=21, bg='gray',
-     ylab="Difference from C12 qPCR Peak (g/mL)", xlab="Ratio of Maximum Quantity of ASV",
-     main="Batch Single")
-lines( otu_table( subset_samples(asv2_batch_single, Isotope =="C13"))/max(otu_table( subset_samples(asv2_batch_single, Isotope =="C13"))),
-       sample_data(subset_samples(asv2_batch_single, Isotope =="C13"))$diff_C12_peak,
-     type="o", col='black', pch=21, bg='black')
-text(0.6, -0.04, "EAF = NA")
-
-
-asv2_batch_five = subset_samples(asv2, Culture == "Batch" & Treatment == "Multi")
-
-plot( otu_table( subset_samples(asv2_batch_five, Isotope =="C12"))/max(otu_table( subset_samples(asv2_batch_five, Isotope =="C12"))),
-      sample_data(subset_samples(asv2_batch_five, Isotope =="C12"))$diff_C12_peak,
-     type="o", ylim=c(-0.05,0.051), col='gray', pch=21, bg='gray',
-     ylab="Difference from C12 qPCR Peak (g/mL)", xlab="Ratio of Maximum Quantity of ASV",
-     main="Batch Multi")
-lines( otu_table( subset_samples(asv2_batch_five, Isotope =="C13"))/max(otu_table( subset_samples(asv2_batch_five, Isotope =="C13"))),
-       sample_data(subset_samples(asv2_batch_five, Isotope =="C13"))$diff_C12_peak,
-     type="o", col='black', pch=21, bg='black')
-text(0.6, -0.04, "EAF = 0.22")
-
-
-asv2_chemo = subset_samples(asv2, Culture == "Chemostat")
-
-plot( otu_table( subset_samples(asv2_chemo, Isotope =="C12"))/max(otu_table( subset_samples(asv2_chemo, Isotope =="C12"))),
-      sample_data(subset_samples(asv2_chemo, Isotope =="C12"))$diff_C12_peak,
-     type="o", ylim=c(-0.05,0.051), col='gray', pch=21, bg='gray',
-     ylab="Difference from C12 qPCR Peak (g/mL)", xlab="Ratio of Maximum Quantity of ASV", 
-     main="Chemostat Multi")
-lines(otu_table( subset_samples(asv2_chemo, Isotope =="C13"))/max(otu_table( subset_samples(asv2_chemo, Isotope =="C13"))),
-      sample_data(subset_samples(asv2_chemo, Isotope =="C13"))$diff_C12_peak, 
-     type="o", col='black', pch=21, bg='black')
-text(0.6, -0.04, "EAF = 0.11")
-
-```
-
-
-## ASVs present in batch both multi and single 
-
-```{r batch-a, message=FALSE, error=FALSE, warning=FALSE, dpi=300, fig.width=7, fig.height=4}
-batch=subset(qsip_data, Culture=="Batch")
-clam=(summary(batch$OTU))
-clam=data.frame(clam)
-clam2=row.names(subset(clam, clam==2))
-length(clam2)
-# 63 ASVs in batch both single and multi 
-
-batch=subset(incorp_only, Culture=="Batch")
-clam=(summary(batch$OTU))
-clam=data.frame(clam)
-clam2=row.names(subset(clam, clam==2))
-length(clam2)
-# 57 ASVs that are batch both single and multi and incorporators 
-# batch_incorp=subset(batch, OTU %in% clam2) for some reason this doesn't work in my markdown %in% so I have to save it all 
-# saveRDS(batch_incorp, 'datafiles/batch_incorp')
-batch_incorp=readRDS('datafiles/batch_incorp')
-# batch_incorp=data.frame(batch_incorp)
-
-# summary(as.factor(batch_incorp$Class))
-# summary(as.factor(batch_incorp$Family))
-
-```
-
-
-
-
-```{r batch-b, message=FALSE, error=FALSE, warning=FALSE, dpi=300, fig.width=5, fig.height=5}
-
-multi=subset(batch_incorp, Substrate=="Multi")
-single=subset(batch_incorp, Substrate=="Single")
-
-plot(multi$A, single$A, xlab= "EAF Batch Multi Substrate", ylab ="EAF Batch Single Substrate", pch=21, ylim=c(0,1), 
-     xlim=c(0,1), bg='gray',cex=(multi$copy_number*0.7),alpha = 0.5)
-ll=lm(single$A~multi$A)
-summary(ll)
-abline(ll)
-text(0.8, 0.4, "R2 = 0.30 \n F = 25.38 \n p = 5.4 e-6")
-abline(a=0,b=1,lty=2)
-
-```
-### Figure 4
-
-### batch multi eaf vs single eaf 
-```{r batch-bb, message=FALSE, error=FALSE, warning=FALSE, dpi=300, fig.width=6, fig.height=4}
-multi=subset(batch_incorp, Substrate=="Multi")
-single=subset(batch_incorp, Substrate=="Single")
-
-
-both=cbind(single$A, multi$A, multi$Class, multi$copy_number)
-colnames(both)=c("Single","Multi", "Class", "copy_number")
-row.names(both)=multi$OTU
-both=data.frame(both)
-
-
-custom_colors_class=c("Acidimicrobiia" ="#f21277",
-                      "Actinobacteria" ="#a02016",
-                      "Alphaproteobacteria" ="#ffb659",
-                      "Bacteroidia" = "#48591c",
-                      "Chloroflexia"='gray',
-                      "Deltaproteobacteria" ="#01a34a",
-                      "Gammaproteobacteria" ="#7bc6ff",
-                      "OM190" = 'gray',
-                      "Planctomycetacia" ="#00539e",
-                      "Rhodothermia"='gray',
-                      "Thermoleophilia" = 'gray',
-                      "vadinHA49" = "gray", 
-                      "Verrucomicrobiae" ="#6868f2")
-
-both$Class_ag=both$Class
-both$Class_ag=as.factor(both$Class_ag)
-levels(both$Class_ag)=c("Acidimicrobiia","Actinobacteria","Alphaproteobacteria","Bacteroidia","Other","Deltaproteobacteria","Gammaproteobacteria","Other","Planctomycetacia", "Other", "Other", "Other","Verrucomicrobiae")
-
-custom_colors_class=c("Acidimicrobiia" ="#f21277",
-                      "Actinobacteria" ="#a02016",
-                      "Alphaproteobacteria" ="#ffb659",
-                      "Bacteroidia" = "#48591c",
-                                            "Other" = 'gray',
-
-                      "Deltaproteobacteria" ="#01a34a",
-                      "Gammaproteobacteria" ="#7bc6ff",
-                      "Planctomycetacia" ="#00539e",
-                      "Verrucomicrobiae" ="#6868f2")
-
-
-
-ggplot(both, aes(x=as.numeric(Multi), y=as.numeric(Single),  color=Class, linewidth=as.numeric(copy_number))) +
-  geom_point(size=as.numeric(both$copy_number), alpha=0.8) +
-  theme_bw() +
-  ylim(c(0,0.8)) + xlim(c(0,0.8))  +
-  theme(axis.line = element_line(colour = "black"),
-    panel.grid.major = element_blank(),
-    panel.grid.minor = element_blank()) +
-    geom_smooth(method = "lm", se = TRUE, col='black',fullrange=TRUE) + 
-    geom_abline(intercept = 0, slope = 1, color = "black", linetype = "dashed", linewidth = 1) +
-  xlab("EAF multi-substrate batch") +
-  ylab("EAF single-substrate batch") +
-#  annotate("text", label="R2 = 0.30 \n F = 25.38 \n p = 5.4 e-6", x=0.6, y=0.4) +
- #   scale_fill_manual(values=custom_colors_class) + 
-  scale_color_manual(values=custom_colors_class) 
-
-
-
-# new
-ggplot(both, aes(x=as.numeric(Multi), y=as.numeric(Single),  color=Class, size=as.numeric(copy_number), linewidth=0)) +
-  geom_smooth(method = "lm", se = TRUE, col='black',fullrange=TRUE,linewidth=1) + 
- # geom_point(size=as.numeric(both$copy_number), alpha=0.8) +
-   geom_point(alpha=0.8,show.legend=TRUE)+
-  theme_bw(base_size = 12) + 
- # scale_size(range = c(1, 10)) +
-  ylim(c(0,0.8)) + xlim(c(0,0.8))  +
-  theme(axis.line = element_line(colour = "black"),
-    panel.grid.major = element_blank(),
-    panel.grid.minor = element_blank(),
-    strip.text = element_text(size = 12)) +
- guides(color = guide_legend(override.aes = list(linetype = 0))) +
-  geom_abline(intercept = 0, slope = 1, color = "black", linetype = "dashed") +
-  xlab("EAF multi-substrate batch") +
-  ylab("EAF single-substrate batch") +
-#  annotate("text", label="R2 = 0.30 \n F = 25.38 \n p = 5.4 e-6", x=0.6, y=0.4) +
- #   scale_fill_manual(values=custom_colors_class) + 
-  scale_color_manual(values=custom_colors_class) + guides(color = guide_legend(override.aes = list(size = 4)))
-
-new2=ggplot(both, aes(x=as.numeric(Single), y=as.numeric(Multi),  color=Class, size=as.numeric(copy_number), linewidth=0)) +
-  geom_smooth(method = "lm", se = TRUE, col='black',fullrange=TRUE,linewidth=1) + 
- # geom_point(size=as.numeric(both$copy_number), alpha=0.8) +
-   geom_point(alpha=0.8,show.legend=TRUE)+
-  theme_bw(base_size = 12) + 
- # scale_size(range = c(1, 10)) +
-  ylim(c(0,0.8)) + xlim(c(0,0.8))  +
-  theme(axis.line = element_line(colour = "black"),
-    panel.grid.major = element_blank(),
-    panel.grid.minor = element_blank(),
-    strip.text = element_text(size = 12)) +
- guides(color = guide_legend(override.aes = list(linetype = 0))) +
-  geom_abline(intercept = 0, slope = 1, color = "black", linetype = "dashed") +
-  xlab("EAF single-substrate batch") +
-  ylab("EAF multi-substrate batch") +
-#  annotate("text", label="R2 = 0.30 \n F = 25.38 \n p = 5.4 e-6", x=0.6, y=0.4) +
- #   scale_fill_manual(values=custom_colors_class) + 
-  scale_color_manual(values=custom_colors_class) + guides(color = guide_legend(override.aes = list(size = 4)))
-new2
-ggsave(filename = 'figure3.svg', new2, dpi=300,height=3.7, width=6, units='in')
-
-
+comm_samples=c("5MC2", "9MC2", "SidersPond")
+#just_comm=subset_samples(phyo1, SampleID1 %in% comm_samples)
+#saveRDS(just_comm,'/Users/oliviaahern/Documents/GitHub/Sip_CopyNumber/datafiles/just_comm')
+just_comm=readRDS('/Users/oliviaahern/Documents/GitHub/Sip_CopyNumber/datafiles/just_comm')
+
+just_comm <- prune_taxa(taxa_sums(just_comm) > 0, just_comm)
+otu <- as(otu_table(just_comm), "matrix")
+if (!taxa_are_rows(just_comm)) otu <- t(otu)
+pa <- (otu > 0) * 1
+colnames(pa) <- sample_data(just_comm)$SampleID1
+# shared taxa between innoc and the community samples 
+shared_mat <- t(pa) %*% pa
+shared_mat
+
+#sum(rowSums(pa) == ncol(pa))
+
+
+glom=tax_glom(just_comm, "Genus")
+abund=transform_sample_counts(glom, function(x) (x/sum(x)))
+b1_melt <- psmelt(abund)
+
+b1_summed <- b1_melt %>%
+  group_by(Sample, Genus) %>%
+  summarise(Abundance = sum(Abundance), .groups = "drop")
+
+shared_genera <- b1_summed %>%
+  filter(Abundance > 0) %>%
+  group_by(Genus) %>%
+  summarise(n = n_distinct(Sample), .groups = "drop") %>%
+  filter(n == length(comm_samples)) %>%
+  pull(Genus) %>%
+  as.character()
+
+b1_summed <- b1_summed %>%
+  mutate(shared_genera = ifelse(Genus %in% shared_genera & !Genus %in% c("uncultured", "uncultured bacterium"),
+                                as.character(Genus), "Not shared"))
+
+shared_cols <- c(setNames(scales::hue_pal()(length(shared_genera)), shared_genera),
+                 "Not shared" = "grey85")
+
+#b1_summed <- b1_summed %>%
+#  mutate(Sample = fct_relevel(Sample,
+#                              "Innoculum", "Coculture", "Algal-cell associated"))
+library(ggalluvial)
+b1_figure=ggplot(b1_summed, aes(x = Sample, y = Abundance, alluvium = Genus, stratum = Genus, fill = shared_genera)) +
+  geom_flow(alpha = 0.7) +
+  geom_stratum() +
+  theme_minimal(base_size = 12) +
+  theme(legend.position = 'bottom',
+      legend.text = element_text(size = 8),
+      legend.key.size = unit(0.4, "cm")) +
+ # xlab("B1") +
+  guides(fill = guide_legend(ncol = 2)) +
+  scale_fill_manual(values = shared_cols) +
+  ylab("Relative Abundance")
+b1_figure
+
+#ggsave('comm_plot.svg',plot=b1_figure, dpi=300, height=6, width =5)
 ```
 
 
 
 ```{r}
-library(smatr)
-
-ma_fit  <- ma(as.numeric(Single) ~ as.numeric(Multi), data = both, slope.test = 1, elev.test = 0)
-sma_fit <- sma(as.numeric(Single) ~ as.numeric(Multi), data = both, slope.test = 1, elev.test = 0)
-summary(ma_fit); summary(sma_fit)
-
-t.test(shared$Single, shared$Multi, paired = TRUE)
-wilcox.test(shared$Single, shared$Multi, paired = TRUE)   # if differences are skewed
-plot(sma_fit, which = "residual")  
-```
-
-### batch multi eaf vs single eaf 
-```{r batch-bbc, message=FALSE, error=FALSE, warning=FALSE, dpi=300, fig.width=6, fig.height=4}
-
-both=cbind(single$A, multi$A, multi$Class, multi$copy_number)
-colnames(both)=c("Single","Multi", "Class", "copy_number")
-row.names(both)=multi$OTU
-both=data.frame(both)
-
-
-custom_colors_class=c("Acidimicrobiia" ="#f21277",
-                      "Actinobacteria" ="#a02016",
-                      "Alphaproteobacteria" ="#ffb659",
-                      "Bacteroidia" = "#48591c",
-                      "Chloroflexia"='gray',
-                      "Deltaproteobacteria" ="#01a34a",
-                      "Gammaproteobacteria" ="#7bc6ff",
-                      "OM190" = 'gray',
-                      "Planctomycetacia" ="#00539e",
-                      "Rhodothermia"='gray',
-                      "Thermoleophilia" = 'gray',
-                      "vadinHA49" = "gray", 
-                      "Verrucomicrobiae" ="#6868f2")
-
-both$Class_ag=both$Class
-both$Class_ag=as.factor(both$Class_ag)
-levels(both$Class_ag)=c("Acidimicrobiia","Actinobacteria","Alphaproteobacteria","Bacteroidia","Other","Deltaproteobacteria","Gammaproteobacteria","Other","Planctomycetacia", "Other", "Other", "Other","Verrucomicrobiae")
-
-custom_colors_class=c("Acidimicrobiia" ="#f21277",
-                      "Actinobacteria" ="#a02016",
-                      "Alphaproteobacteria" ="#ffb659",
-                      "Bacteroidia" = "#48591c",
-                                            "Other" = 'gray',
-
-                      "Deltaproteobacteria" ="#01a34a",
-                      "Gammaproteobacteria" ="#7bc6ff",
-                      "Planctomycetacia" ="#00539e",
-                      "Verrucomicrobiae" ="#6868f2")
 
 
 
-ggplot(both, aes(x=as.numeric(Multi), y=as.numeric(Single),  color=Class, linewidth=as.numeric(copy_number))) +
-  geom_point(size=as.numeric(both$copy_number), alpha=0.8) +
-  theme_bw() +
-  ylim(c(0,0.8)) + xlim(c(0,0.8))  +
-  theme(axis.line = element_line(colour = "black"),
-    panel.grid.major = element_blank(),
-    panel.grid.minor = element_blank()) +
-    geom_smooth(method = "lm", se = TRUE, col='black',fullrange=TRUE) + 
-    geom_abline(intercept = 0, slope = 1, color = "black", linetype = "dashed", linewidth = 1) +
-  xlab("EAF multi-substrate batch") +
-  ylab("EAF single-substrate batch") +
-#  annotate("text", label="R2 = 0.30 \n F = 25.38 \n p = 5.4 e-6", x=0.6, y=0.4) +
- #   scale_fill_manual(values=custom_colors_class) + 
-  scale_color_manual(values=custom_colors_class) 
-
-
-
-# new
-ggplot(both, aes(x=as.numeric(Multi), y=as.numeric(Single),  color=Class, size=as.numeric(copy_number), linewidth=0)) +
-  geom_smooth(method = "lm", se = TRUE, col='black',fullrange=TRUE,linewidth=1) + 
- # geom_point(size=as.numeric(both$copy_number), alpha=0.8) +
-   geom_point(alpha=0.8,show.legend=TRUE)+
-  theme_bw(base_size = 12) + 
- # scale_size(range = c(1, 10)) +
-  ylim(c(0,0.8)) + xlim(c(0,0.8))  +
-  theme(axis.line = element_line(colour = "black"),
-    panel.grid.major = element_blank(),
-    panel.grid.minor = element_blank(),
-    strip.text = element_text(size = 12)) +
- guides(color = guide_legend(override.aes = list(linetype = 0))) +
-  geom_abline(intercept = 0, slope = 1, color = "black", linetype = "dashed") +
-  xlab("EAF multi-substrate batch") +
-  ylab("EAF single-substrate batch") +
-#  annotate("text", label="R2 = 0.30 \n F = 25.38 \n p = 5.4 e-6", x=0.6, y=0.4) +
- #   scale_fill_manual(values=custom_colors_class) + 
-  scale_color_manual(values=custom_colors_class) + guides(color = guide_legend(override.aes = list(size = 4)))
-
-new2=ggplot(both, aes(x=as.numeric(Multi), y=as.numeric(Single),  color=Class, size=as.numeric(copy_number), linewidth=0)) +
-  geom_smooth(method = "lm", se = TRUE, col='black',fullrange=TRUE,linewidth=1) + 
- # geom_point(size=as.numeric(both$copy_number), alpha=0.8) +
-   geom_point(alpha=0.8,show.legend=TRUE)+
-  theme_bw(base_size = 12) + 
- # scale_size(range = c(1, 10)) +
-  ylim(c(0,0.8)) + xlim(c(0,0.8))  +
-  theme(axis.line = element_line(colour = "black"),
-    panel.grid.major = element_blank(),
-    panel.grid.minor = element_blank(),
-    strip.text = element_text(size = 12)) +
- guides(color = guide_legend(override.aes = list(linetype = 0))) +
-  geom_abline(intercept = 0, slope = 1, color = "black", linetype = "dashed") +
-  xlab("EAF multi-substrate batch") +
-  ylab("EAF single-substrate batch") +
-#  annotate("text", label="R2 = 0.30 \n F = 25.38 \n p = 5.4 e-6", x=0.6, y=0.4) +
- #   scale_fill_manual(values=custom_colors_class) + 
-  scale_color_manual(values=custom_colors_class) + guides(color = guide_legend(override.aes = list(size = 4)))
-new2
-ggsave(filename = 'figure3.svg', new2, dpi=300,height=3.7, width=6, units='in')
-
+s=sort(summary(as.factor(asv_shift$feature_id)))
+clam=subset(asv_shift, feature_id=="ffd660f96ba6668b2d8d86fc4e150862")
+clam$W_unlab
+clam2=subset(asv_shift, feature_id=="e416d0916760d2fc17b616e2ac3ad855")
+clam2$W_unlab
 
 ```
-
-
-##### try figure 3 with ioc data 
-
-```{r batch-b1, message=FALSE, error=FALSE, warning=FALSE, dpi=300, fig.width=5, fig.height=5}
-
-multi=subset(incorp_w_ioc, Substrate=="Multi")
-single=subset(incorp_w_ioc, Substrate=="Single")
-
-both_i=merge(multi, single, by="OTU")
-clam1=subset(both_i, Substrate.x=="Multi")
-clam_single=subset(both_i, Substrate.x=="Single")
-
-plot(both_i$A.y, both_i$A.x, xlab= "EAF Batch Single Substrate", ylab ="EAF Batch Multi Substrate", pch=21, ylim=c(0,1), 
-     xlim=c(0,1), bg='gray',cex=(both_i$IoC_genus_mean.x))
-ll=lm(both_i$A.x~both_i$A.y)
-summary(ll)
-abline(ll)
-#text(0.2, 0.8, "R2 = 0.1065 \n F = 6.008 \n p = 0.01859")
-abline(a=0,b=1,lty=2)
-
-```
-
-
-
-
-```{r basic-line}
-
-both2=data.frame(both)
-
-plot(both2$Single, both2$Multi, ylim=c(0,0.8),xlim=c(0,0.8), pch=21, bg=as.factor(both2$Class),cex=2)
-ll=lm(as.numeric(both2$Multi)~as.numeric(both2$Single))
-abline(ll)
-abline(a=0,b=1,lty=2)
-summary(ll)
-
-
-```
-
-
-```{r}
-# greater than 3
-chowder=subset(both, copy_number >= 3)
-dim(both)
-dim(chowder)
-
-fact=c(chowder$Single, chowder$Multi)
-factor2=c(rep("Single",25), rep("Multi",25))
-a=aov(fact~factor2)
-summary(a)
-boxplot(as.numeric(fact)~factor(factor2))
-
-
-# greater than 3
-chowder=subset(both, copy_number >= 4)
-dim(both)
-dim(chowder)
-
-fact=c(chowder$Single, chowder$Multi)
-factor2=c(rep("Single",11), rep("Multi",11))
-a=aov(fact~factor2)
-summary(a)
-boxplot(as.numeric(fact)~factor(factor2))
-
-a=t.test(as.numeric(fact)~factor2)
-summary(a)
-boxplot(as.numeric(fact)~factor(factor2))
-
-chowder=subset(both, copy_number < 4)
-dim(both)
-dim(chowder)
-
-fact=c(chowder$Single, chowder$Multi)
-factor2=c(rep("Single",46), rep("Multi",46))
-a=aov(fact~factor2)
-summary(a)
-boxplot(as.numeric(fact)~factor(factor2))
-
-a=t.test(as.numeric(fact)~factor2)
-summary(a)
-boxplot(as.numeric(fact)~factor(factor2))
-
-```
-#### heatmap 
-
- 

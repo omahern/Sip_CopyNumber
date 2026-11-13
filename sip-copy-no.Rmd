@@ -796,7 +796,7 @@ head(asv_enriched)
 dim(subset(asv_enriched, treatment=="batch_glucose"))
 
 # five carbon_batch
-five_batch_phyo=subset_samples(phyo1, Treatment=="Five-Carbon" & Culture=="Batch")
+five_batch_phyo=subset_samples(phyo1, Treatment=="Multi" & Culture=="Batch")
 five_batch_phyo <- filter_taxa(five_batch_phyo, function(x) any(x > 0), prune = TRUE)
 five_batch_tax=tax_table(five_batch_phyo)
 five_batch_numb=merge(five_batch_tax, number, by="Strain")
@@ -806,7 +806,7 @@ dim(five_batch_A)
 
 
 # five carbon_chemo
-five_chemo_phyo=subset_samples(phyo1, Treatment=="Five-Carbon" & Culture=="Chemostat")
+five_chemo_phyo=subset_samples(phyo1, Treatment=="Multi" & Culture=="Chemostat")
 five_chemo_phyo <- filter_taxa(five_chemo_phyo, function(x) any(x > 0), prune = TRUE)
 five_chemo_tax=tax_table(five_chemo_phyo)
 five_chemo_numb=merge(five_chemo_tax, number, by="Strain")
